@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.32228.343
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DecoderDemo", "DecoderDemo\DecoderDemo.vcxproj", "{A7131426-3EE9-4486-BF77-320C24FB641A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlayerDemo", "PlayerDemo\PlayerDemo.vcxproj", "{C7572F53-3D23-4EDE-8957-2694B486E77E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo", "Demo\Demo.vcxproj", "{CE0F8A0A-0B64-4F50-814C-6069CF0788FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -15,6 +19,14 @@ Global
 		{A7131426-3EE9-4486-BF77-320C24FB641A}.Debug|x64.Build.0 = Debug|x64
 		{A7131426-3EE9-4486-BF77-320C24FB641A}.Release|x64.ActiveCfg = Release|x64
 		{A7131426-3EE9-4486-BF77-320C24FB641A}.Release|x64.Build.0 = Release|x64
+		{C7572F53-3D23-4EDE-8957-2694B486E77E}.Debug|x64.ActiveCfg = Debug|x64
+		{C7572F53-3D23-4EDE-8957-2694B486E77E}.Debug|x64.Build.0 = Debug|x64
+		{C7572F53-3D23-4EDE-8957-2694B486E77E}.Release|x64.ActiveCfg = Release|x64
+		{C7572F53-3D23-4EDE-8957-2694B486E77E}.Release|x64.Build.0 = Release|x64
+		{CE0F8A0A-0B64-4F50-814C-6069CF0788FF}.Debug|x64.ActiveCfg = Debug|x64
+		{CE0F8A0A-0B64-4F50-814C-6069CF0788FF}.Debug|x64.Build.0 = Debug|x64
+		{CE0F8A0A-0B64-4F50-814C-6069CF0788FF}.Release|x64.ActiveCfg = Release|x64
+		{CE0F8A0A-0B64-4F50-814C-6069CF0788FF}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

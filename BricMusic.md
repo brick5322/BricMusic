@@ -15,23 +15,54 @@
 
 尽量只和GUI、FIFO队列交互，减少与SDL的交互
 
-函数
+构造函数
 
-1. 预解码（解封装，分析存储信息）
-2. 解图片
+- ```C++
+  Decoder(std::function<void(uchar*, int)> func_write,QObject* parent = Q_NULLPTR);
+  //func_write应该是一个lambda表达式，封装一个FIFO类
+  ```
 
 发送的信号
 
-1. 解码完成
+1. 基本音频格式
 
-2. 解码数据（本线程请求）
+   ```c++
+   void basicInfo(AVSampleFormat sampleFormat,	int channel_layout,	int sample_rate);
+   ```
+
+2. 解专辑图
+
+   ```C++
+   void attachedPic(uchar* pic_data,int size);
+   ```
+
+3. 解码完成
+
+   ```C++
+   void decodeFin();
+   ```
 
 槽
 
-1. 解码暂停
-2. 新的解码任务
-3. 切换解码位置
-4. 启动解码
+1. 新的解码任务
+
+   ```C++
+   void decode(int sz);//剩余空间sz
+   ```
+
+2. 切换解码位置
+
+   ```C++
+   void flush(unsigned int timeStamp);
+   ```
+
+函数
+
+1. 读音频文件
+
+   ```C++
+   int open(const char* filepath);
+   ```
 
 ## SDL播放器
 
@@ -113,3 +144,17 @@
 
 1. 队列满
 2. 队列空
+
+## 播放过程
+
+1. 文件调度
+2. 开启解码
+3. Decoder获得解码格式
+4. 打开播放器，获取硬件近似需求格式，生成缓冲区（缓冲区大小与音量渐止时间相同）
+5. 发送缓冲区到Controller
+6. 开启定时器
+   - 缓冲区不满则调用解码
+7. 开启播放器
+8. （解码器结束）发送暂停
+9. 等待播放结束
+10. 返回文件调度
