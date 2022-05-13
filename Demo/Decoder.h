@@ -13,13 +13,6 @@ extern "C"
 
 #define BufferSize 192000
 
-typedef struct AudioConfigs
-{
-	AVSampleFormat sampleFormat;
-	int channel_layout;
-	int sample_rate;
-}AudioConfigs;
-
 class Decoder : public QObject {
 	
 	Q_OBJECT

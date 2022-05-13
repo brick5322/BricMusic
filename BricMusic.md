@@ -18,8 +18,7 @@
 构造函数
 
 - ```C++
-  Decoder(std::function<void(uchar*, int)> func_write,QObject* parent = Q_NULLPTR);
-  //func_write应该是一个lambda表达式，封装一个FIFO类
+  Decoder(QObject* parent = Q_NULLPTR);
   ```
 
 发送的信号
@@ -47,7 +46,7 @@
 1. 新的解码任务
 
    ```C++
-   void decode(int sz);//剩余空间sz
+   void decode(FIFO&);//剩余空间sz
    ```
 
 2. 切换解码位置
@@ -75,6 +74,8 @@
 
 1. 暂停/开始
 2. 新的播放任务
+
+这里要注意的是计算缓冲区大小，设定大小为`SDL_AudioSpec.samples` = `samples`/`privateVolume`，
 
 ## Qt框架
 
@@ -132,25 +133,40 @@
 
    
 
-   
+## Controller
 
-## FIFO队列
+这个Controller要维护一个FIFO队列，并封装所有Decoder和Player的接口。
 
-这个队列的要求是线程安全的。
+```mermaid
+graph TB;
+FILEMANAGER-->decopen[\Decoder::open\]--success-->atchpic[emit Decoder::attachedPic]
+decopen--success-->info[emit Decoder::basicInfo]
+decopen--failed-->FILEMANAGER
+atchpic-->Controller::getPic
+info-->Controller::getContext
+Controller::getContext-->Player::resetContext
+Player::resetContext--播放线程-->callback[\Player::Player_Callback\]
+callback-->Player::getData
+Player::resetContext-->Controller::start
+Controller::start-->s[\Controller::timeout\]
+callback-->Player::terminated
+s-->Decoder::decode
+Decoder::decode-->Decoder::decodeFin
+Decoder::decodeFin-->Controller::stop
+Decoder::decodeFin-->Player::pause
+Player::pause-->ter1[Player::terminated]
+Controller::stop-->FILEMANAGER
+ter1-->FILEMANAGER
+```
 
-会在切换歌曲时重新计算队列大小重新生成一个FIFO队列
 
-发送的信号：
-
-1. 队列满
-2. 队列空
 
 ## 播放过程
 
 1. 文件调度
 2. 开启解码
-3. Decoder获得解码格式
-4. 打开播放器，获取硬件近似需求格式，生成缓冲区（缓冲区大小与音量渐止时间相同）
+3. Decoder获得解码格式,生成缓冲区
+4. 打开播放器，
 5. 发送缓冲区到Controller
 6. 开启定时器
    - 缓冲区不满则调用解码

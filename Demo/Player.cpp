@@ -14,7 +14,7 @@ struct SDL_Initializer {
 	}
 }initializer;
 
-Player::Player( QObject* parent): QObject(parent),externVolume(100),privateVolume(100),pausing(false)
+Player::Player( QObject* parent): QObject(parent),externVolume(100),privateVolume(volumeFrame),pausing(false)
 {
 	audioFormat.freq = 44100;
 	audioFormat.channels = 2;
@@ -48,7 +48,7 @@ void Player::Player_Callback(Player* plr, Uint8* stream, int len)
 	else
 		plr->privateVolume = 100;
 
-	float volume = (float)plr->externVolume * plr->privateVolume / 10000;
+	float volume = (float)plr->externVolume * plr->privateVolume / 100 / volumeFrame;
 	plr->getData(stream, len);
 	switch (plr->audioFormat.format)
 	{
@@ -86,6 +86,11 @@ void Player::terminate(){
 	pausing = false;
 	emit terminated();
 }
+
+void Player::setVolume(int volume) {
+	this->externVolume = volume;
+}
+
 
 void Player::resetContext(SDL_AudioSpec context,FIFO*& fifo) {
 	SDL_CloseAudio();
