@@ -38,8 +38,11 @@ public:
 	FIFO(int maxsize);
 	~FIFO();
 	int getFreesize();
+	int size();
+	void reset();
 	FIFO& operator<<(SimpleString& str);
 	FIFO& operator>>(SimpleBuffer& buf);
+	const FIFO& operator=(FIFO&& copy);
 	FIFO_cstr operator[](int sz);
 };
 

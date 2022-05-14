@@ -16,8 +16,9 @@ public slots:
 	void play();
 	void pause();
 	void terminate();
+	void close();
 	void setVolume(int volume);
-	void resetContext(SDL_AudioSpec context);
+	void resetContext(SDL_AudioSpec& context);
 signals:
 	void getData(unsigned char* buffer,int len);
 	void terminated();

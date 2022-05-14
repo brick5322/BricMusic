@@ -18,7 +18,7 @@ Player::Player( QObject* parent): QObject(parent),externVolume(100),privateVolum
 {
 	audioFormat.freq = 44100;
 	audioFormat.channels = 2;
-	audioFormat.samples = 1024;
+	audioFormat.samples = 1470;
 	audioFormat.format = AUDIO_S32SYS;
 
 	audioFormat.userdata = this;
@@ -87,17 +87,25 @@ void Player::terminate(){
 	emit terminated();
 }
 
+void Player::close()
+{
+	SDL_CloseAudio();
+}
+
 void Player::setVolume(int volume) {
 	this->externVolume = volume;
 }
 
 
-void Player::resetContext(SDL_AudioSpec context,FIFO*& fifo) {
-	SDL_CloseAudio();
-	context.userdata = audioFormat.userdata;
-	context.callback = audioFormat.callback;
-	SDL_OpenAudio(&context,nullptr);
-	int sz = context.freq * context.channels * (context.format & 0x3f) >> 3;
-	fifo = new FIFO(sz);
+void Player::resetContext(SDL_AudioSpec& context) {
+	if (SDL_GetAudioStatus() != SDL_AUDIO_STOPPED)
+	{
+		SDL_PauseAudio(true);
+		SDL_CloseAudio();
+	}
+	audioFormat = context;
+	audioFormat.userdata = this;
+	audioFormat.callback = (SDL_AudioCallback)Player::Player_Callback;
+	SDL_OpenAudio(&audioFormat,nullptr);
 	play();
 }

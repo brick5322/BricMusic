@@ -1,7 +1,5 @@
 #include "Decoder.h"
 
-
-
 struct test_saver {
 	FILE* fp;
 	test_saver() {
@@ -13,8 +11,8 @@ struct test_saver {
 	}
 	void write(uchar* buf, int sz)
 	{
-		printf("out2 write:%d\n", sz);
-		fwrite(buf, sz, 1, fp);
+		//printf("out2 write:%d\n", sz);
+		//fwrite(buf, sz, 1, fp);
 	}
 }saver2;
 
@@ -51,10 +49,14 @@ Decoder::~Decoder()
 int Decoder::open(const char* filepath)
 {
 	int err = 0;
-	if (err = avformat_open_input(&fmt, filepath, NULL, NULL))
+	if (err = avformat_open_input(&fmt, filepath, NULL, NULL))	{
+		emit decodeErr(err);
 		return err;
-	if ((err = avformat_find_stream_info(fmt, NULL)) < 0)
+	}
+	if ((err = avformat_find_stream_info(fmt, NULL)) < 0)	{
+		emit decodeErr(err);
 		return err;
+	}
 #ifdef _DEBUG
 	av_dump_format(fmt, 0, filepath, 0);
 #endif
@@ -66,16 +68,23 @@ int Decoder::open(const char* filepath)
 		else if (!(picPacket = av_packet_clone(&fmt->streams[i]->attached_pic)))
 			continue;
 	cdpr = stream->codecpar;
-	if ((err = avcodec_parameters_to_context(ctx, cdpr)) < 0)
+	if ((err = avcodec_parameters_to_context(ctx, cdpr)) < 0)	{
+		emit decodeErr(err);
 		return err;
-	if (avcodec_open2(ctx, avcodec_find_decoder(cdpr->codec_id), NULL))
+	}
+
+	if (avcodec_open2(ctx, avcodec_find_decoder(cdpr->codec_id), NULL))	{
+		emit decodeErr(err);
 		return err;
+	}
 
 	channel_layout = av_get_default_channel_layout(cdpr->channels);
 	sampleFormat = AV_SAMPLE_FMT_S32;
 	sample_rate = cdpr->sample_rate;
-	if(picPacket)
+	if (picPacket)
 		emit attachedPic(picPacket->data, picPacket->size);
+	else
+		emit attachedPic(nullptr, 0);
 	emit basicInfo(sampleFormat, channel_layout, sample_rate);
 
 	switch (cdpr->format)
@@ -85,16 +94,17 @@ int Decoder::open(const char* filepath)
 	case AV_SAMPLE_FMT_S16:
 	case AV_SAMPLE_FMT_S32:
 	case AV_SAMPLE_FMT_FLT:
-	case AV_SAMPLE_FMT_DBL:
 		swr_free(&swrCtx);
 		swrCtx = NULL;
 		break;
+	case AV_SAMPLE_FMT_DBL:
+		sampleFormat = AV_SAMPLE_FMT_FLT;
 	case AV_SAMPLE_FMT_U8P:
 	case AV_SAMPLE_FMT_S16P:
 	case AV_SAMPLE_FMT_S32P:
 	case AV_SAMPLE_FMT_FLTP:
-	case AV_SAMPLE_FMT_DBLP:
 		sampleFormat = (AVSampleFormat)(cdpr->format - 5);
+	case AV_SAMPLE_FMT_DBLP:
 	case AV_SAMPLE_FMT_S64:
 	case AV_SAMPLE_FMT_S64P:
 		swrCtx = swr_alloc_set_opts(swrCtx,

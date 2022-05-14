@@ -30,8 +30,6 @@ inline int FIFOBuffer_current_size(struct FIFOBuffer* fifo) {
 	return fifo->size - fifo->freesize;
 }
 
-
-
 int FIFOBuffer_writein(struct FIFOBuffer* fifo_buffer,const unsigned char* src, int sz)
 {
 	int writein = min(sz, fifo_buffer->freesize);
@@ -81,4 +79,11 @@ int FIFOBuffer_readout(struct FIFOBuffer* fifo_buffer, unsigned char* dst, int s
 	 printf("READ :%d,free:%d\n", readout, fifo_buffer->freesize);
 
 	return readout;
+}
+
+void FIFOBuffer_reset(struct FIFOBuffer* f)
+{
+	f->freesize = f->size;
+	f->readpos = f->buffer;
+	f->writepos = f->buffer;
 }

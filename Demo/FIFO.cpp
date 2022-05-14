@@ -24,6 +24,16 @@ int FIFO::getFreesize()
 	return fifo_buffer->freesize;
 }
 
+int FIFO::size()
+{
+	return fifo_buffer->size;
+}
+
+void FIFO::reset()
+{
+	FIFOBuffer_reset(fifo_buffer);
+}
+
 FIFO& FIFO::operator<<(SimpleString& str) {
 	int remained_sz = str.sz;
 	unsigned char* buffer = (unsigned char*)str.buffer;
@@ -47,6 +57,13 @@ FIFO& FIFO::operator>>(SimpleBuffer& buf) {
 		mtx.unlock();
 	}while (func_readErr(fifo_buffer->freesize, buf.sz - copied_sz));
 	return *this;
+}
+
+const FIFO& FIFO::operator=(FIFO&& copy)
+{
+	FIFOBuffer_free(fifo_buffer);
+	fifo_buffer = copy.fifo_buffer;
+	copy.fifo_buffer = nullptr;
 }
 
 FIFO_cstr FIFO::operator[](int sz)
