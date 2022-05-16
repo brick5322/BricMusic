@@ -4,9 +4,6 @@
 #include "Player.h"
 #include "Controller.h"
 
-const char* audio2 = "../testfile/ãöğ°yousa - 09.ÏçÇéÇú£¨·­³ª£©.flac";
-const char* audio3 = "../testfile/skycity1.mp3";
-const char* audio4 = "../testfile/chleh,¾ÅÖØÁÙ - Ö¦½­ÍùÊÂ ¸ÖÇÙ°æ.flac";
 
 int main(int argc, char *argv[])
 {
