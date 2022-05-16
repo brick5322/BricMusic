@@ -14,7 +14,8 @@ BasicList *BasicList_alloc(int nb_types)
     ret->length = 0;
     ret->nb_types = nb_types;
     ret->latestPos = -1;
-    ret->destructors[0] = NULL;
+    for(int i = 0;i <=nb_types;i++)
+        ret->destructors[i] = NULL;
     return ret;
 }
 

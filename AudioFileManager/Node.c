@@ -1,15 +1,19 @@
 #include "Node.h"
 #include <stdlib.h>
 
-Node *Node_alloc(int type, int sz)
+Node *Node_alloc(int8_t type, int sz)
 {
-    if (type && sz > 0x00ffffff)
+    if (sz < 0 || type < 0)
         return NULL;
     Node *ret = malloc(sizeof(Node) + sz);
     if (!ret)
         return ret;
     ret->datainf.sz = sz;
-    ret->datainf.type.typeID = type;
+    if (type)
+    {
+        ret->datainf.type.is_multiType = 1;
+        ret->datainf.type.typeID = type;
+    }
     ret->next = NULL;
     return ret;
 }
@@ -17,8 +21,14 @@ Node *Node_alloc(int type, int sz)
 Node *Node_free(Node *f, Destructor *destructors)
 {
     Node *next = f->next;
-    if (f->datainf.type.typeID)
-        destructors[f->datainf.type.typeID](f->data);
+    Destructor destructor = f->datainf.type.is_multiType? destructors[f->datainf.type.typeID]:destructors[0];
+    if (destructor)
+        destructor(f->data);
     free(f);
     return next;
+}
+
+int Node_size(Node* node)
+{
+    return node->datainf.sz < 0 ? node->datainf.type.typesz : node->datainf.sz;
 }
