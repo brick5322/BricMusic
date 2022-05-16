@@ -1,48 +1,46 @@
 #pragma once
-
+#include <cstdint>
 #include <mutex>
-#include <functional>
-extern "C"
-{
-#include "SimpleString.h"
-}
-using FIFO_privatedef = struct FIFOBuffer;
 
-class FIFO_cstr
-{
-private:
-	FIFO_cstr(std::mutex& mtx, FIFO_privatedef* fifo_buffer,int sz);
-	FIFO_cstr operator=(const FIFO_cstr&);
-	std::mutex& mtx;
-	FIFO_privatedef* fifo_buffer;
-	int sz;
-public:
-	~FIFO_cstr();
-	friend class FIFO;
-	int operator<<(const unsigned char* str);
-	int operator>>(unsigned char* buf);
-};
+struct FIFOBuffer;
+
+using FIFO_privatedef = FIFOBuffer;
+
+class FIFO;
+class FIFO_cstr;
 
 class FIFO
 {
+protected:
+	FIFO_privatedef* buf;
+	int flags;
 public:
-	using writeErr_Callback = std::function<bool(int& freesize, const unsigned char*, int)>;
-	using readErr_Callback = std::function<bool(int& freesize, int)>;
-private:
-	std::mutex mtx;
-	FIFO_privatedef* fifo_buffer;
-	writeErr_Callback func_writeErr;
-	readErr_Callback func_readErr;
-public:
-	FIFO(writeErr_Callback func_writeErr, readErr_Callback func_readErr, int maxsize);
-	FIFO(int maxsize);
+	enum Flags
+	{
+		WriteMostSz = 0x1,
+		ReadMostSz = 0x2,
+		StrictWrite = 0x4,
+		StrictRead = 0x8,
+	};
+	FIFO(int sz,int flags = StrictWrite | StrictRead);
+	FIFO(const FIFO&);
 	~FIFO();
-	int getFreesize();
 	int size();
+	int freesize();
 	void reset();
-	FIFO& operator<<(SimpleString& str);
-	FIFO& operator>>(SimpleBuffer& buf);
-	const FIFO& operator=(FIFO&& copy);
+	const FIFO& operator=(const FIFO&);
 	FIFO_cstr operator[](int sz);
 };
 
+class FIFO_cstr :public FIFO
+{
+public:
+	int sz;
+private:
+	friend class FIFO;
+	FIFO_cstr(const FIFO&,int sz);
+	void operator=(const FIFO_cstr&);
+public:
+	int operator<<(const uint8_t*);
+	int operator>>(uint8_t*);
+};

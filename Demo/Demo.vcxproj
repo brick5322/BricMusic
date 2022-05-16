@@ -98,7 +98,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -106,20 +106,16 @@
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="Decoder.cpp" />
     <ClCompile Include="FIFO.cpp" />
-    <ClCompile Include="FIFOprivate.c" />
+    <ClCompile Include="FIFOBuffer.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
-    <ClCompile Include="SimpleString.c" />
-    <ClCompile Include="Test.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="Test.h" />
+    <ClInclude Include="FIFOBuffer.h" />
     <QtMoc Include="Decoder.h" />
     <QtMoc Include="Controller.h" />
     <ClInclude Include="FIFO.h" />
-    <ClInclude Include="FIFOprivate.h" />
     <QtMoc Include="Player.h" />
-    <ClInclude Include="SimpleString.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

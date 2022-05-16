@@ -1,23 +1,23 @@
 #include "Decoder.h"
 
-struct test_saver {
-	FILE* fp;
-	test_saver() {
-		fp = fopen("out2.pcm", "wb");
-	}
+//struct test_saver {
+//	FILE* fp;
+//	test_saver() {
+//		fp = fopen("decoderoutput.pcm", "wb");
+//	}
+//
+//	~test_saver() {
+//		fclose(fp);
+//	}
+//	void write(uchar* buf, int sz)
+//	{
+//		//printf("decoderoutput write:%d\n", sz);
+//		fwrite(buf, sz, 1, fp);
+//	}
+//}saver2;
 
-	~test_saver() {
-		fclose(fp);
-	}
-	void write(uchar* buf, int sz)
-	{
-		//printf("out2 write:%d\n", sz);
-		//fwrite(buf, sz, 1, fp);
-	}
-}saver2;
 
-
-Decoder::Decoder( QObject* parent) :QObject(parent),
+Decoder::Decoder(Controller* parent) :QObject(parent),
 fmt(avformat_alloc_context()), cdpr(NULL),
 stream(NULL), ctx(avcodec_alloc_context3(NULL)),
 swrCtx(swr_alloc()), picPacket(NULL),decodeBuffer(new uchar[BufferSize]), decodeData(decodeBuffer),sz_decodeData(0),
@@ -85,7 +85,6 @@ int Decoder::open(const char* filepath)
 		emit attachedPic(picPacket->data, picPacket->size);
 	else
 		emit attachedPic(nullptr, 0);
-	emit basicInfo(sampleFormat, channel_layout, sample_rate);
 
 	switch (cdpr->format)
 	{
@@ -93,17 +92,23 @@ int Decoder::open(const char* filepath)
 	case AV_SAMPLE_FMT_U8:
 	case AV_SAMPLE_FMT_S16:
 	case AV_SAMPLE_FMT_S32:
-	case AV_SAMPLE_FMT_FLT:
+		sampleFormat = (AVSampleFormat)cdpr->format;
 		swr_free(&swrCtx);
 		swrCtx = NULL;
 		break;
+	case AV_SAMPLE_FMT_FLT:
 	case AV_SAMPLE_FMT_DBL:
-		sampleFormat = AV_SAMPLE_FMT_FLT;
+		swrCtx = swr_alloc_set_opts(swrCtx,
+			channel_layout, sampleFormat, sample_rate,
+			channel_layout, (AVSampleFormat)cdpr->format, sample_rate,
+			NULL, NULL);
+		swr_init(swrCtx);
+	break;
 	case AV_SAMPLE_FMT_U8P:
 	case AV_SAMPLE_FMT_S16P:
 	case AV_SAMPLE_FMT_S32P:
-	case AV_SAMPLE_FMT_FLTP:
 		sampleFormat = (AVSampleFormat)(cdpr->format - 5);
+	case AV_SAMPLE_FMT_FLTP:
 	case AV_SAMPLE_FMT_DBLP:
 	case AV_SAMPLE_FMT_S64:
 	case AV_SAMPLE_FMT_S64P:
@@ -118,17 +123,19 @@ int Decoder::open(const char* filepath)
 	default:
 		break;
 	}
+	av_seek_frame(fmt, stream->index, (int64_t)fmt->start_time, AVSEEK_FLAG_FRAME);
+	emit basicInfo(sampleFormat, channel_layout, sample_rate);
 	return err;
 }
 
 void Decoder::flush(unsigned int timeStamp)
 {
-	av_seek_frame(fmt, stream->index, (int64_t)timeStamp * stream->time_base.den/stream->time_base.num, AVSEEK_FLAG_BACKWARD);
+	av_seek_frame(fmt, stream->index, (int64_t)(timeStamp+ fmt->start_time) * stream->time_base.den/stream->time_base.num, AVSEEK_FLAG_BACKWARD);
 }
 
 void Decoder::decode(FIFO& buffer) {
 	int err = 0;
-	int sz = buffer.getFreesize();
+	int sz = buffer.freesize();
 	if (!sz)
 		return;
 	if (!sz_decodeData)
@@ -136,7 +143,11 @@ void Decoder::decode(FIFO& buffer) {
 		{
 			av_packet_unref(decodecPacket);
 			if (av_read_frame(fmt, decodecPacket))
-				emit decodeFin();
+			{
+				static_cast<Controller*>(parent())->stop();
+				return;
+			}
+				//emit decodeFin();
 			else
 			{
 				if (decodecPacket->stream_index != stream->index)
@@ -154,16 +165,21 @@ void Decoder::decode(FIFO& buffer) {
 				}
 				else if (decodecFrame->linesize[0] > sz)
 				{
+					SDL_LockMutex(static_cast<Controller*>(parent())->mutex());
 					buffer[sz] << decodecFrame->data[0];
-					saver2.write(decodecFrame->data[0], sz);
+					SDL_UnlockMutex(static_cast<Controller*>(parent())->mutex());
+					//saver2.write(decodecFrame->data[0], sz);
 					memcpy(decodeData,decodecFrame->data[0] + sz, decodecFrame->linesize[0] - sz);
 					sz_decodeData = decodecFrame->linesize[0] - sz;
 					return;
 				}
 				else 
 				{
+					SDL_LockMutex(static_cast<Controller*>(parent())->mutex());
 					buffer[decodecFrame->linesize[0]] << decodecFrame->data[0];
-					saver2.write(decodecFrame->data[0], decodecFrame->linesize[0]);
+					SDL_UnlockMutex(static_cast<Controller*>(parent())->mutex());
+
+					//saver2.write(decodecFrame->data[0], decodecFrame->linesize[0]);
 					return;
 				}
 			}
@@ -171,15 +187,19 @@ void Decoder::decode(FIFO& buffer) {
 
 	if (sz <= sz_decodeData)
 	{
+		SDL_LockMutex(static_cast<Controller*>(parent())->mutex());
 		buffer[sz] << decodeData;
-		saver2.write(decodeData, sz);
+		SDL_UnlockMutex(static_cast<Controller*>(parent())->mutex());
+		//saver2.write(decodeData, sz);
 
 		(sz_decodeData -= sz)?decodeData += sz: decodeData = decodeBuffer ;
 	}
 	else if(sz_decodeData)
 	{
+		SDL_LockMutex(static_cast<Controller*>(parent())->mutex());
 		buffer[sz_decodeData] << decodeData;
-		saver2.write(decodeData, sz_decodeData);
+		SDL_UnlockMutex(static_cast<Controller*>(parent())->mutex());
+		//saver2.write(decodeData, sz_decodeData);
 
 		decodeData = decodeBuffer;
 		sz_decodeData = 0;

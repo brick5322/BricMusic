@@ -3,14 +3,35 @@
 #include <QBitmap>
 #include <QPainter>
 
+inline QPixmap PixmapToRound(const QPixmap& src)
+{
+	if (src.isNull()) {
+		return QPixmap();
+	}
+	QBitmap mask(AlbumSZ, AlbumSZ);
+	QPainter painter(&mask);
+	painter.setRenderHint(QPainter::SmoothPixmapTransform);
+	painter.fillRect(0, 0, AlbumSZ, AlbumSZ, Qt::white);
+	painter.setBrush(QColor(0, 0, 0));
+	painter.drawRoundedRect(0, 0, AlbumSZ, AlbumSZ, 100, 100);
+	QPixmap image = src.scaled(AlbumSZ, AlbumSZ);
+	image.setMask(mask);
+	return image;
+}
 
 Controller::Controller(QObject *parent)
-	: QTimer(parent),fifo(44100*2*4),is_finishing(false),is_paused(false),is_pausing(false)
+	: QTimer(parent),fifo(1024 * 128 * 2 *4),is_finishing(false),is_paused(false),is_pausing(false),mtx(SDL_CreateMutex())
 {
 }
 
 Controller::~Controller()
 {
+	SDL_DestroyMutex(mtx);
+}
+
+SDL_mutex* Controller::mutex()
+{
+	return mtx;
 }
 
 void Controller::getContext(AVSampleFormat sampleFormat, int channel_layout, int sample_rate)
@@ -44,7 +65,7 @@ void Controller::getContext(AVSampleFormat sampleFormat, int channel_layout, int
 		audioContext.channels = 2;
 		break;
 	}
-	int sz = sample_rate * audioContext.channels * (audioContext.format & 0x3f) >> 3;
+	int sz = 1024 * 128 * audioContext.channels * (audioContext.format & 0x3f) >> 3;
 	if (fifo.size() != sz)
 		fifo = FIFO(sz);
 	else
@@ -53,11 +74,14 @@ void Controller::getContext(AVSampleFormat sampleFormat, int channel_layout, int
 
 void Controller::setData(unsigned char* buffer, int len)
 {
+	SDL_LockMutex(mtx);
 	fifo[len] >> buffer;
+	SDL_UnlockMutex(mtx);
 }
 
 void Controller::getPic(uchar* picdata, int size)
 {
+	return;
 	if (picdata)
 	{
 		albumImage.loadFromData(picdata, size);
@@ -71,7 +95,7 @@ void Controller::getPic(uchar* picdata, int size)
 
 void Controller::on_controller_timeout()
 {
-	if(fifo.getFreesize())
+	if (fifo.freesize())
 		getData(fifo);
 }
 
@@ -86,25 +110,18 @@ void Controller::on_player_terminated()
 	//这个函数可以写的太多了，它代表着音频播放结束最后的处理，之后会返回文件管理
 }
 
-void Controller::stop()
+void Controller::start()
 {
-	this->is_finishing = true;
-	setPausing();
-	QTimer::stop();
+	emit setContext(audioContext);
+	QTimer::start();
 }
 
-QPixmap PixmapToRound(const QPixmap& src)
+void Controller::stop()
 {
-	if (src.isNull()) {
-		return QPixmap();
-	}
-	QBitmap mask(AlbumSZ,AlbumSZ);
-	QPainter painter(&mask);
-	painter.setRenderHint(QPainter::SmoothPixmapTransform);
-	painter.fillRect(0, 0, AlbumSZ, AlbumSZ, Qt::white);
-	painter.setBrush(QColor(0, 0, 0));
-	painter.drawRoundedRect(0, 0, AlbumSZ, AlbumSZ, 100, 100);
-	QPixmap image = src.scaled(AlbumSZ, AlbumSZ);
-	image.setMask(mask);
-	return image;
+	if (!this->isActive())
+		return;
+	this->is_finishing = true;
+	setPausing();
+	this->QTimer::stop();
 }
+

@@ -3,6 +3,7 @@
 #include <QObject>
 #include <functional>
 #include "FIFO.h"
+#include "Controller.h"
 
 extern "C"
 {
@@ -18,7 +19,7 @@ class Decoder : public QObject {
 	Q_OBJECT
 
 public:
-	Decoder(QObject* parent = Q_NULLPTR);
+	Decoder(Controller* parent = Q_NULLPTR);
 	~Decoder();
 signals:
 	void attachedPic(uchar* picdata,int size);

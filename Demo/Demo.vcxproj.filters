@@ -31,27 +31,18 @@
     <ClCompile Include="Decoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SimpleString.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FIFOprivate.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Test.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Controller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FIFOBuffer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SimpleString.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FIFOprivate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FIFO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FIFOBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -60,9 +51,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Decoder.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Test.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Controller.h">

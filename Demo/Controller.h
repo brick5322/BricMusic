@@ -29,12 +29,15 @@ public slots:
 	void setData(unsigned char* buffer, int len);
 	void getPic(uchar* picdata, int size);
 	void on_player_terminated();
+	void start();
 	void stop();
 public:
 	Controller(QObject *parent = Q_NULLPTR);
 	~Controller();
+	SDL_mutex* mutex();
 private:
 	FIFO fifo;
+	SDL_mutex* mtx;
 	QPixmap albumImage;
 	SDL_AudioSpec audioContext;
 	bool is_finishing;

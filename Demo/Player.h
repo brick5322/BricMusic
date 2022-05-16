@@ -1,11 +1,11 @@
 #pragma once
 #include <QObject>
+#include "Controller.h"
 
 extern"C"
 {
 #include <SDL.h>
 }
-constexpr int volumeFrame = 30;
 
 class Player : public QObject
 {
@@ -23,8 +23,8 @@ signals:
 	void getData(unsigned char* buffer,int len);
 	void terminated();
 public:
-	Player(QObject* parent = Q_NULLPTR);
-
+	Player(Controller* parent = Q_NULLPTR);
+	static constexpr int SDL_buffersz = 4096;
 	static void Player_Callback(Player* plr, Uint8* stream, int len);
 private:
 	SDL_AudioSpec audioFormat;

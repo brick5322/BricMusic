@@ -1,24 +1,26 @@
 #include "Player.h"
 
-
 struct SDL_Initializer {
 	//FILE* fp;
 	SDL_Initializer() {
 		//fp = fopen("playeroutput.pcm", "wb");
 		SDL_Init(SDL_INIT_AUDIO);
 	}
-
+	void write(uchar* buf, int sz) {
+		printf("playeroutput write:%d\n", sz);
+		//fwrite(buf, sz, 1, fp);
+	}
 	~SDL_Initializer() {
 		//fclose(fp);
 		SDL_Quit();
 	}
 }initializer;
 
-Player::Player( QObject* parent): QObject(parent),externVolume(100),privateVolume(volumeFrame),pausing(false)
+Player::Player(Controller* parent): QObject(parent),externVolume(128),privateVolume(128),pausing(false)
 {
 	audioFormat.freq = 44100;
 	audioFormat.channels = 2;
-	audioFormat.samples = 1470;
+	audioFormat.samples = SDL_buffersz;
 	audioFormat.format = AUDIO_S32SYS;
 
 	audioFormat.userdata = this;
@@ -26,50 +28,48 @@ Player::Player( QObject* parent): QObject(parent),externVolume(100),privateVolum
 	SDL_OpenAudio(&audioFormat, nullptr);
 }
 
-#define Player_vol_weighting(Type,buffer,volume,samples) for (int i = 0; i < (samples)/sizeof(Type); i++) \
-		((Type*)(buffer))[i] *= (volume);
-
-void Player::setVolume(int volume)
-{
-	externVolume = volume;
-}
-
 void Player::Player_Callback(Player* plr, Uint8* stream, int len)
 {
-	if (plr->privateVolume == 0){
+	if (plr->pausing && plr->privateVolume == 0){
 		emit plr->terminate();
 		return;
 	}
 
 	if (plr->pausing)
 		plr->privateVolume--;
-	else if (plr->privateVolume < 100)
+	else if (plr->privateVolume < plr->externVolume)
 		plr->privateVolume++;
 	else
-		plr->privateVolume = 100;
+		plr->privateVolume = plr->externVolume;
+	SDL_memset(stream, 0, len);
+	static_cast<Controller*>(plr->parent())->setData(stream, len);
 
-	float volume = (float)plr->externVolume * plr->privateVolume / 100 / volumeFrame;
-	plr->getData(stream, len);
+	if (plr->privateVolume == 128)
+		goto ret;
 	switch (plr->audioFormat.format)
 	{
 	case AUDIO_S16SYS:
-		Player_vol_weighting(short, stream, volume, plr->audioFormat.samples);
+		for (int i = 0; i < len/sizeof(short); i++)
+			((short*)stream)[i] *= (double)plr->privateVolume/128;
 		break;
 	case AUDIO_S32SYS:
-		Player_vol_weighting(int, stream, volume, plr->audioFormat.samples);
-		break;
-	case AUDIO_F32SYS:
-		Player_vol_weighting(float, stream, volume, plr->audioFormat.samples);
+		for (int i = 0; i < len/sizeof(int); i++)
+			((int*)stream)[i] *= (double)plr->privateVolume / 128;
 		break;
 	case AUDIO_U16SYS:
-		Player_vol_weighting(unsigned short, stream, volume, plr->audioFormat.samples);
+		for (int i = 0; i < len / sizeof(short); i++)
+			((uint16_t*)stream)[i] *= (double)plr->privateVolume / 128;
 		break;
 	case AUDIO_U8:
-		Player_vol_weighting(unsigned char, stream, volume, plr->audioFormat.size);
+		for (int i = 0; i < len; i++)
+			stream[i] *= (double)plr->privateVolume / 128;
 		break;
 	default:
 		break;
 	}
+ret:
+	//initializer.write(stream, len);
+	return;
 }
 
 void Player::play(){
@@ -104,6 +104,7 @@ void Player::resetContext(SDL_AudioSpec& context) {
 		SDL_CloseAudio();
 	}
 	audioFormat = context;
+	audioFormat.samples = SDL_buffersz;
 	audioFormat.userdata = this;
 	audioFormat.callback = (SDL_AudioCallback)Player::Player_Callback;
 	SDL_OpenAudio(&audioFormat,nullptr);
