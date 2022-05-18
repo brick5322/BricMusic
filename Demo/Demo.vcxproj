@@ -103,15 +103,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AudioFileManager.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="Decoder.cpp" />
     <ClCompile Include="FIFO.cpp" />
     <ClCompile Include="FIFOBuffer.c" />
+    <ClCompile Include="List.c" />
+    <ClCompile Include="List_cstr.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Node.c" />
     <ClCompile Include="Player.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="AudioFileManager.h" />
     <ClInclude Include="FIFOBuffer.h" />
+    <ClInclude Include="List.h" />
+    <ClInclude Include="List_cstr.h" />
+    <ClInclude Include="Node.h" />
+    <ClInclude Include="pubdefs.h" />
     <QtMoc Include="Decoder.h" />
     <QtMoc Include="Controller.h" />
     <ClInclude Include="FIFO.h" />

@@ -2,6 +2,11 @@
 #include <QImage>
 #include <QBitmap>
 #include <QPainter>
+#ifdef _DEBUG
+#include <QDebug>
+#include <QTime>
+#endif
+
 
 inline QPixmap PixmapToRound(const QPixmap& src)
 {
@@ -66,6 +71,11 @@ void Controller::getContext(AVSampleFormat sampleFormat, int channel_layout, int
 		break;
 	}
 	int sz = 1024 * 128 * audioContext.channels * (audioContext.format & 0x3f) >> 3;
+
+#ifdef _DEBUG
+	qDebug() << QTime::currentTime() << "getContext" << sz;
+#endif // _DEBUG
+
 	if (fifo.size() != sz)
 		fifo = FIFO(sz);
 	else
@@ -104,14 +114,20 @@ void Controller::on_player_terminated()
 	if (!is_finishing)
 		return;
 	is_finishing = false;
-	is_paused = false;
+	is_paused = true;
 	is_pausing = false;
+#ifdef _DEBUG
+	qDebug() << QTime::currentTime()<<"emit playTaskFinish";
+#endif
 	emit playTaskFinish();
 	//这个函数可以写的太多了，它代表着音频播放结束最后的处理，之后会返回文件管理
 }
 
 void Controller::start()
 {
+#ifdef _DEBUG
+	qDebug() << QTime::currentTime() << "Controller::start" ;
+#endif // _DEBUG
 	emit setContext(audioContext);
 	QTimer::start();
 }

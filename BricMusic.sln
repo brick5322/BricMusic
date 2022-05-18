@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.32228.343
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo", "Demo\Demo.vcxproj", "{CE0F8A0A-0B64-4F50-814C-6069CF0788FF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AudioFileManager", "AudioFileManager\AudioFileManager.vcxproj", "{40C22477-708D-4A48-BD51-85487A695D57}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,12 +19,6 @@ Global
 		{CE0F8A0A-0B64-4F50-814C-6069CF0788FF}.Release|x64.ActiveCfg = Release|x64
 		{CE0F8A0A-0B64-4F50-814C-6069CF0788FF}.Release|x64.Build.0 = Release|x64
 		{CE0F8A0A-0B64-4F50-814C-6069CF0788FF}.Release|x86.ActiveCfg = Release|x64
-		{40C22477-708D-4A48-BD51-85487A695D57}.Debug|x64.ActiveCfg = Debug|x64
-		{40C22477-708D-4A48-BD51-85487A695D57}.Debug|x64.Build.0 = Debug|x64
-		{40C22477-708D-4A48-BD51-85487A695D57}.Debug|x86.ActiveCfg = Debug|x64
-		{40C22477-708D-4A48-BD51-85487A695D57}.Release|x64.ActiveCfg = Release|x64
-		{40C22477-708D-4A48-BD51-85487A695D57}.Release|x64.Build.0 = Release|x64
-		{40C22477-708D-4A48-BD51-85487A695D57}.Release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

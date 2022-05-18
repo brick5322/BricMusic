@@ -1,17 +1,16 @@
 #include "Player.h"
 
+#ifdef _DEBUG
+#include <QDebug>
+#include <QTime>
+#endif
+
 struct SDL_Initializer {
-	//FILE* fp;
 	SDL_Initializer() {
-		//fp = fopen("playeroutput.pcm", "wb");
 		SDL_Init(SDL_INIT_AUDIO);
 	}
-	void write(uchar* buf, int sz) {
-		printf("playeroutput write:%d\n", sz);
-		//fwrite(buf, sz, 1, fp);
-	}
+
 	~SDL_Initializer() {
-		//fclose(fp);
 		SDL_Quit();
 	}
 }initializer;
@@ -31,6 +30,9 @@ Player::Player(Controller* parent): QObject(parent),externVolume(128),privateVol
 void Player::Player_Callback(Player* plr, Uint8* stream, int len)
 {
 	if (plr->pausing && plr->privateVolume == 0){
+#ifdef _DEBUG
+		qDebug() << QTime::currentTime() << "emit terminate";
+#endif
 		emit plr->terminate();
 		return;
 	}
@@ -78,13 +80,19 @@ void Player::play(){
 }
 
 void Player::pause(){
+#ifdef _DEBUG
+	qDebug() << QTime::currentTime() << "start pause";
+#endif
 	pausing = true;
 }
 
 void Player::terminate(){
+#ifdef _DEBUG
+	qDebug() << QTime::currentTime() << "start terminate";
+#endif
 	SDL_PauseAudio(true);
 	pausing = false;
-	emit terminated();
+	static_cast<Controller*>(parent())->on_player_terminated();
 }
 
 void Player::close()

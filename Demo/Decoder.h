@@ -24,13 +24,13 @@ public:
 signals:
 	void attachedPic(uchar* picdata,int size);
 	void basicInfo(AVSampleFormat sampleFormat,	int channel_layout,	int sample_rate);
-	void decodeFin();
+	//void decodeFin();
 	void decodeErr(int);
-public:
-	int open(const char* filepath);
 public slots:
 	void decode(FIFO& buffer);
 	void flush(unsigned int timeStamp);
+	int open(const char* filepath);
+	void close();
 private:
 	AVSampleFormat sampleFormat;
 	int channel_layout;

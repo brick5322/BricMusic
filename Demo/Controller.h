@@ -3,6 +3,7 @@
 #include <QTimer>
 #include <QPixmap>
 #include "FIFO.h"
+//#define _DEBUG
 
 extern "C"
 {

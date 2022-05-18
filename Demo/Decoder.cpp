@@ -1,20 +1,9 @@
 #include "Decoder.h"
 
-//struct test_saver {
-//	FILE* fp;
-//	test_saver() {
-//		fp = fopen("decoderoutput.pcm", "wb");
-//	}
-//
-//	~test_saver() {
-//		fclose(fp);
-//	}
-//	void write(uchar* buf, int sz)
-//	{
-//		//printf("decoderoutput write:%d\n", sz);
-//		fwrite(buf, sz, 1, fp);
-//	}
-//}saver2;
+#ifdef _DEBUG
+#include <QDebug>
+#include <QTime>
+#endif
 
 
 Decoder::Decoder(Controller* parent) :QObject(parent),
@@ -124,8 +113,20 @@ int Decoder::open(const char* filepath)
 		break;
 	}
 	av_seek_frame(fmt, stream->index, (int64_t)fmt->start_time, AVSEEK_FLAG_FRAME);
+#ifdef _DEBUG
+	qDebug() << QTime::currentTime() << "emit basicInfo";
+#endif
 	emit basicInfo(sampleFormat, channel_layout, sample_rate);
 	return err;
+}
+
+void Decoder::close()
+{
+	avcodec_close(ctx);
+	avformat_close_input(&fmt);
+#ifdef _DEBUG
+	qDebug() << QTime::currentTime() << "close context";
+#endif
 }
 
 void Decoder::flush(unsigned int timeStamp)
@@ -142,9 +143,12 @@ void Decoder::decode(FIFO& buffer) {
 		while (true)
 		{
 			av_packet_unref(decodecPacket);
+			if (!fmt)
+				return;
 			if (av_read_frame(fmt, decodecPacket))
 			{
 				static_cast<Controller*>(parent())->stop();
+				close();
 				return;
 			}
 				//emit decodeFin();
