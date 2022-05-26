@@ -28,9 +28,7 @@ public slots:
 	void on_controller_timeout();
 	void getContext(AVSampleFormat sampleFormat, int channel_layout, int sample_rate);
 	void setData(unsigned char* buffer, int len);
-	void getPic(uchar* picdata, int size);
 	void on_player_terminated();
-	void start();
 	void stop();
 public:
 	Controller(QObject *parent = Q_NULLPTR);

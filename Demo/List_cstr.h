@@ -11,6 +11,7 @@ public:
 	void remove(uint32_t pos);
 	const char* operator[](uint32_t pos);
 	bool update(const char* src,uint32_t pos);
+	size_t length();
 	List_cstr& operator()(Flag flag);
 	List_cstr& operator<<(const char*);
 	List_cstr& operator>>(const char*&);

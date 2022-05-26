@@ -39,11 +39,11 @@ int Decoder::open(const char* filepath)
 {
 	int err = 0;
 	if (err = avformat_open_input(&fmt, filepath, NULL, NULL))	{
-		emit decodeErr(err);
+		emit deformatErr(err);
 		return err;
 	}
 	if ((err = avformat_find_stream_info(fmt, NULL)) < 0)	{
-		emit decodeErr(err);
+		emit deformatErr(err);
 		return err;
 	}
 #ifdef _DEBUG
@@ -58,12 +58,12 @@ int Decoder::open(const char* filepath)
 			continue;
 	cdpr = stream->codecpar;
 	if ((err = avcodec_parameters_to_context(ctx, cdpr)) < 0)	{
-		emit decodeErr(err);
+		emit deformatErr(err);
 		return err;
 	}
 
 	if (avcodec_open2(ctx, avcodec_find_decoder(cdpr->codec_id), NULL))	{
-		emit decodeErr(err);
+		emit deformatErr(err);
 		return err;
 	}
 
@@ -122,7 +122,8 @@ int Decoder::open(const char* filepath)
 
 void Decoder::close()
 {
-	avcodec_close(ctx);
+	static_cast<Controller*>(parent())->stop();
+	//avcodec_close(ctx);
 	avformat_close_input(&fmt);
 #ifdef _DEBUG
 	qDebug() << QTime::currentTime() << "close context";
@@ -147,7 +148,6 @@ void Decoder::decode(FIFO& buffer) {
 				return;
 			if (av_read_frame(fmt, decodecPacket))
 			{
-				static_cast<Controller*>(parent())->stop();
 				close();
 				return;
 			}

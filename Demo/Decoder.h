@@ -26,6 +26,7 @@ signals:
 	void basicInfo(AVSampleFormat sampleFormat,	int channel_layout,	int sample_rate);
 	//void decodeFin();
 	void decodeErr(int);
+	void deformatErr(int);
 public slots:
 	void decode(FIFO& buffer);
 	void flush(unsigned int timeStamp);

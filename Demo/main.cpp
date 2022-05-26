@@ -20,29 +20,58 @@ int main(int argc, char *argv[])
         qDebug() << QTime::currentTime() << argv[i];
 #endif 
     QCoreApplication a(argc, argv);
-    AudioFileManager manager(argc, argv);
+    AudioFileManager::PlayBackMode mode = AudioFileManager::loop;
+    char** _argv = argv;
+    if (argv[1][0] == '-')
+    {
+        switch (argv[1][1])
+        {
+        case 's':
+            mode = AudioFileManager::singleTune;
+            _argv++;
+            argc--;
+            break;
+        case 'L':
+            mode = AudioFileManager::loopPlayBack;
+            _argv++;
+            argc--;
+            break;
+        case 'l':
+            mode = AudioFileManager::loop;
+            _argv++;
+            argc--;
+            break;
+        case 'r':
+            mode = AudioFileManager::randomTune;
+            _argv++;
+            argc--;
+            break;
+        default:
+            break;
+        }
+    }
+    AudioFileManager manager(argc, _argv,mode);
     Controller ctrler;
     Player player(&ctrler);
     Decoder decoder(&ctrler);
 
     ctrler.setInterval(10);
 
-    //QObject::connect(&decoder, &Decoder::decodeFin, &ctrler, &Controller::stop);
     QObject::connect(&decoder, &Decoder::basicInfo, &ctrler, &Controller::getContext);
-    QObject::connect(&decoder, &Decoder::attachedPic, &ctrler, &Controller::getPic);
 
     QObject::connect(&ctrler, &Controller::getData, &decoder, &Decoder::decode);
     QObject::connect(&ctrler, &Controller::setContext, &player, &Player::resetContext);
+    QObject::connect(&ctrler, &Controller::setPausing, &player, &Player::pause);
     QObject::connect(&ctrler, &Controller::playTaskFinish, &manager ,&AudioFileManager::findNextAudio);
     QObject::connect(&ctrler, &QTimer::timeout, &ctrler, &Controller::on_controller_timeout);
-    QObject::connect(&ctrler, &Controller::setPausing, &player, &Player::pause);
 
     QObject::connect(&player, &Player::getData, &ctrler, &Controller::setData);
-    //QObject::connect(&player, &Player::terminated, &ctrler, &Controller::on_player_terminated);
 
     QObject::connect(&manager, &AudioFileManager::endofList, &a, &QCoreApplication::quit);
     QObject::connect(&manager, &AudioFileManager::setFilePath, &decoder, &Decoder::open);
-    QObject::connect(&manager, &AudioFileManager::setFilePath, &ctrler, &Controller::start);
+
+    QObject::connect(&decoder, &Decoder::deformatErr, &manager, &AudioFileManager::findNextAudio);
+    QObject::connect(&decoder, &Decoder::decodeErr, &decoder, &Decoder::close);
 
     manager.findNextAudio();
     return a.exec();

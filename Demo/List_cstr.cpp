@@ -111,6 +111,11 @@ bool List_cstr::update(const char* src, uint32_t pos)
 	return false;
 }
 
+size_t List_cstr::length()
+{
+	return basic_list->length;
+}
+
 List_cstr& List_cstr::operator()(Flag flag)
 {
 	this->flag = flag;

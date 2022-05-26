@@ -80,6 +80,11 @@ void Controller::getContext(AVSampleFormat sampleFormat, int channel_layout, int
 		fifo = FIFO(sz);
 	else
 		fifo.reset();
+#ifdef _DEBUG
+	qDebug() << QTime::currentTime() << "Controller::start";
+#endif // _DEBUG
+	emit setContext(audioContext);
+	QTimer::start();
 }
 
 void Controller::setData(unsigned char* buffer, int len)
@@ -87,20 +92,6 @@ void Controller::setData(unsigned char* buffer, int len)
 	SDL_LockMutex(mtx);
 	fifo[len] >> buffer;
 	SDL_UnlockMutex(mtx);
-}
-
-void Controller::getPic(uchar* picdata, int size)
-{
-	return;
-	if (picdata)
-	{
-		albumImage.loadFromData(picdata, size);
-		albumImage.scaled(AlbumSZ, AlbumSZ, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
-		PixmapToRound(albumImage);
-	}
-	else
-		//albumImage.load("qrc:/img/CD.png");
-		return;
 }
 
 void Controller::on_controller_timeout()
@@ -123,21 +114,13 @@ void Controller::on_player_terminated()
 	//这个函数可以写的太多了，它代表着音频播放结束最后的处理，之后会返回文件管理
 }
 
-void Controller::start()
-{
-#ifdef _DEBUG
-	qDebug() << QTime::currentTime() << "Controller::start" ;
-#endif // _DEBUG
-	emit setContext(audioContext);
-	QTimer::start();
-}
 
 void Controller::stop()
 {
 	if (!this->isActive())
 		return;
 	this->is_finishing = true;
-	setPausing();
+	emit setPausing();
 	this->QTimer::stop();
 }
 
