@@ -6,7 +6,7 @@
 #include <QTimer>
 
 namespace _BAlbumSlider {
-	const QString defaultPic = QString(":/CircleSlider/img/defaultAlbum.svg");
+    const QString defaultPic = QString(":/img/defaultAlbum.tsvg");
 }
 class BAlbumSlider : public QLabel
 {

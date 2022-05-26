@@ -8,7 +8,7 @@
 
 #include <QDebug>
 
-const QString& BAlbumSlider::defaultPic = QString(":/CircleSlider/img/defaultAlbum.svg");
+const QString& BAlbumSlider::defaultPic = QString(":/img/defaultAlbum.tsvg");
 
 BAlbumSlider::BAlbumSlider(const QString& normal, const QString& press, int radius, int maximum, QWidget* parent)
 	: QLabel(parent), handle(normal, normal, press, this), radius(radius), maximum(maximum),
@@ -47,7 +47,7 @@ void BAlbumSlider::init()
 	backPen.setWidth(radius / 5);
 
 	flush_interval = 1000 / defaultFrame;
-
+	setAlbumPic(NULL,0);
 	setMask(QRegion(0, 0, sz, sz, QRegion::Ellipse));
 	QObject::connect(&handle, &BPushButton::pressed, [this]() {emit this->handlePressed(); });
 }		

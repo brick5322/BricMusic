@@ -1,4 +1,16 @@
 <RCC>
-    <qresource prefix="BricMusic">
+    <qresource prefix="/">
+        <file>img/singletune.tsvg</file>
+        <file>img/randomtune.tsvg</file>
+        <file>img/defaultAlbum.tsvg</file>
+        <file>img/handle-normal.tsvg</file>
+        <file>img/handle-press.tsvg</file>
+        <file>img/loopplayback.tsvg</file>
+        <file>img/lrc-able.tsvg</file>
+        <file>img/lrc-disable.tsvg</file>
+        <file>img/next.tsvg</file>
+        <file>img/pause.tsvg</file>
+        <file>img/play.tsvg</file>
+        <file>img/prev.tsvg</file>
     </qresource>
 </RCC>

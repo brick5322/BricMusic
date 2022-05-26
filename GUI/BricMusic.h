@@ -11,7 +11,10 @@ class BricMusic : public QWidget
 
 public:
     BricMusic(const QColor& color,QWidget *parent = Q_NULLPTR);
-
+protected:
+    bool eventFilter(QObject* obj, QEvent*);
+    void enterEvent(QEvent*);
+    void focusOutEvent(QFocusEvent*);
 private:
     BPrettyButton& vol_btn;
     BPrettyButton& lrc_btn;
