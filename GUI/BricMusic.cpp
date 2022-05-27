@@ -9,7 +9,8 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
     lrc_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
     pre_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
     next_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
-    mode_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this))
+    mode_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
+    btns_hidden(true)
 {
     btns[0] = &pre_btn;
     btns[1] = &lrc_btn;
@@ -27,8 +28,7 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
     setWindowFlag(Qt::FramelessWindowHint);
     setFocusPolicy(Qt::StrongFocus);
 
-    QPoint center = albumslider->mapToParent(albumslider->center());
-     center = albumslider->mapToParent(QPoint(25,25));
+    QPoint center = albumslider->mapToParent(QPoint(25,25));
 
     btns_pos[0] = (center + QPointF(-1, 0) * 50 * 1.75).toPoint();
     btns_pos[1] = (center + QPointF(-0.707, -0.707) * 50 * 1.75).toPoint();
@@ -39,7 +39,7 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
     for (int i = 0; i < 5; i++)
     {
         btns[i]->resize(50);
-        btns[i]->move(btns_pos[i]);
+        btns[i]->move(center);
         btns[i]->hide();
     }
     vol_btn.setTSVGpic(":/img/play.tsvg");
@@ -47,6 +47,9 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
     pre_btn.setTSVGpic(":/img/prev.tsvg");
     next_btn.setTSVGpic(":/img/next.tsvg");
     mode_btn.setTSVGpic(":/img/loopplayback.tsvg");
+    ani.setDuration(150);
+    ani.setPropertyName("pos");
+    QObject::connect(&ani, &QAbstractAnimation::finished, this, &BricMusic::on_ani_finished);
 }
 
 bool BricMusic::eventFilter(QObject* obj,QEvent* e)
@@ -62,13 +65,59 @@ void BricMusic::enterEvent(QEvent*)
 {
     this->activateWindow();
     this->raise();
-    for (int i = 0; i < 5; i++)
-        btns[i]->show();
+    btns_hidden = false;
+    if(ani.state()!=QAbstractAnimation::Running)
+        on_ani_finished();
+}
 
+void BricMusic::leaveEvent(QEvent*)
+{
+    if (ani.state() == QAbstractAnimation::Running)
+        btns_hidden = true;
 }
 
 void BricMusic::focusOutEvent(QFocusEvent*)
 {
-    for (int i = 0; i < 5; i++)
-        btns[i]->hide();
+    btns_hidden = true;
+    if (ani.state() != QAbstractAnimation::Running)
+    {
+        ani.setTargetObject(btns[0]);
+        ani.setStartValue(btns_pos[0]);
+        ani.setEndValue(albumslider->mapToParent(QPoint(25, 25)));
+        ani.start();
+    }
+}
+
+void BricMusic::on_ani_finished()
+{
+    int i = 0;
+    QPoint center = albumslider->mapToParent(QPoint(25, 25));
+    if (btns_hidden)
+    {
+        for (i = 0; i < 5; i++)
+            if (!btns[i]->isHidden())
+            {
+                btns[i++]->hide();
+                if (i == 5)
+                    return;
+                ani.setTargetObject(btns[i]);
+                ani.setStartValue(btns_pos[i]);
+                ani.setEndValue(center);
+                ani.start();
+                return;
+            }
+    }
+    else
+    {
+        for (i = 4; i >= 0; i--)
+            if (btns[i]->isHidden())
+            {
+                btns[i]->show();
+                ani.setTargetObject(btns[i]);
+                ani.setEndValue(btns_pos[i]);
+                ani.setStartValue(center);
+                ani.start();
+                return;
+            }
+    }
 }

@@ -2,6 +2,7 @@
 
 #include <QtWidgets/QWidget>
 #include <QPoint>
+#include <QPropertyAnimation>
 #include "BPrettyButton.h"
 #include "BAlbumSlider.h"
 
@@ -14,7 +15,10 @@ public:
 protected:
     bool eventFilter(QObject* obj, QEvent*);
     void enterEvent(QEvent*);
+    void leaveEvent(QEvent*);
     void focusOutEvent(QFocusEvent*);
+private slots:
+    void on_ani_finished();
 private:
     BPrettyButton& vol_btn;
     BPrettyButton& lrc_btn;
@@ -23,6 +27,9 @@ private:
     BPrettyButton& mode_btn;
     BPrettyButton* btns[5];
     QPoint btns_pos[5];
+    bool btns_hidden;
+
 
     BAlbumSlider* albumslider;
+    QPropertyAnimation ani;
 };
