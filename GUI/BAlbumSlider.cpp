@@ -13,7 +13,7 @@ const QString& BAlbumSlider::defaultPic = QString(":/img/defaultAlbum.tsvg");
 BAlbumSlider::BAlbumSlider(const QString& normal, const QString& press, int radius, int maximum, QWidget* parent)
 	: QLabel(parent), handle(normal, normal, press, this), radius(radius), maximum(maximum),
 	is_clicking(false), is_entered(false), is_handlePressed(false), is_longPress_timing(false), is_rotated(false),
-	longPress_duration(0), image_rotate_angle(0), _value(0)
+	longPress_duration(0), image_rotate_angle(0), _value(0), length(0)
 {
 	init();
 }
@@ -21,7 +21,7 @@ BAlbumSlider::BAlbumSlider(const QString& normal, const QString& press, int radi
 BAlbumSlider::BAlbumSlider(const QPixmap& normal, const QPixmap& press, int radius, int maximum, QWidget* parent) :
 	QLabel(parent), handle(normal, normal, press, this), radius(radius), maximum(maximum),
 	is_clicking(false), is_entered(false), is_handlePressed(false), is_longPress_timing(false), is_rotated(false),
-	longPress_duration(0), image_rotate_angle(0), _value(0)
+	longPress_duration(0), image_rotate_angle(0), _value(0), length(0)
 {
 	init();
 }
@@ -40,20 +40,22 @@ void BAlbumSlider::init()
 	resize(sz, sz);
 
 	setAlbumPic(nullptr, 0);
-		
+
 	frontPen.setColor(Qt::black);
 	frontPen.setWidth(radius / 5);
 	backPen.setColor(Qt::white);
 	backPen.setWidth(radius / 5);
 
 	flush_interval = 1000 / defaultFrame;
-	setAlbumPic(NULL,0);
+	setAlbumPic(NULL, 0);
 	setMask(QRegion(0, 0, sz, sz, QRegion::Ellipse));
 	QObject::connect(&handle, &BPushButton::pressed, [this]() {emit this->handlePressed(); });
-}		
+	timerID = startTimer(flush_interval);
+}
 
 BAlbumSlider::~BAlbumSlider()
 {
+	killTimer(timerID);
 }
 
 void BAlbumSlider::setFrontPen(const QColor& color, int width)
@@ -78,6 +80,7 @@ void BAlbumSlider::setValue(double value)
 	if (!handle.isClicking())
 	{
 		_value = value;
+		length = value;
 		emit valueChanged(value);
 	}
 }
@@ -102,17 +105,19 @@ void BAlbumSlider::setAlbumPic(uchar* picdata, int size)
 
 void BAlbumSlider::pauseRotate()
 {
-	this->is_rotated = false;
+	is_rotated = false;
 }
 
 void BAlbumSlider::startRotate()
 {
-	this->is_rotated = true;
+	is_rotated = true;
 }
 
-void BAlbumSlider::start()
+void BAlbumSlider::clickInterupt()
 {
-	timerID = startTimer(flush_interval);
+	is_clicking = false;
+	longPress_duration = 0;
+	is_longPress_timing = false;
 }
 
 void BAlbumSlider::setMaximum(double max)
@@ -120,20 +125,20 @@ void BAlbumSlider::setMaximum(double max)
 	maximum = max;
 }
 
-void BAlbumSlider::stop()
-{
-	killTimer(timerID);
-}
-
 bool BAlbumSlider::eventFilter(QObject* obj, QEvent* e)
 {
 	if(e->type() == QEvent::MouseMove)
 	{
 		QPoint pos = handle.mapToParent(static_cast<QMouseEvent*>(e)->pos());
-		_value = calValue(pos);
-		emit valueChanged(_value);
-		emit sliderMoved(_value);
+		length = calValue(pos);
+		emit sliderMoved(length);
 		return true;
+	}
+	else if (e->type() == QEvent::MouseButtonRelease)
+	{
+		length = calValue(handle.mapToParent(static_cast<QMouseEvent*>(e)->pos()));
+		setValue(length);
+		return QWidget::eventFilter(obj, e);
 	}
 	return QWidget::eventFilter(obj, e);
 }
@@ -184,7 +189,7 @@ void BAlbumSlider::leaveEvent(QEvent*)
 void BAlbumSlider::paintEvent(QPaintEvent*)
 {
 	int width = handle.width() / 2;
-	double angle = _value / maximum;
+	double angle = length / maximum;
 	QPen backPen = this->backPen;
 	QPen frontPen = this->frontPen;
 	if (is_entered)

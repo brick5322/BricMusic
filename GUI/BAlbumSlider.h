@@ -37,8 +37,7 @@ public slots:
 	void setMaximum(double);
 	void pauseRotate();
 	void startRotate();
-	void start();
-	void stop();
+	void clickInterupt();
 protected:
 	bool eventFilter(QObject*, QEvent*);
 	void mousePressEvent(QMouseEvent*);
@@ -64,6 +63,8 @@ private:
 
 	const int radius;
 	int maximum;
+
+	double length;
 	double _value;
 
 	int timerID;

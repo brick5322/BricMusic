@@ -22,10 +22,10 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
     albumslider->move(100, 100);
     albumslider->setFrontPen(color,3);
     albumslider->setBackPen(Qt::white,3);
-    albumslider->start();
+    albumslider->installEventFilter(this);
 
     setAttribute(Qt::WA_TranslucentBackground);
-    setWindowFlag(Qt::FramelessWindowHint);
+    setWindowFlags(Qt::FramelessWindowHint|Qt::WindowStaysOnTopHint);
     setFocusPolicy(Qt::StrongFocus);
 
     QPoint center = albumslider->mapToParent(QPoint(25,25));
@@ -54,10 +54,27 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
 
 bool BricMusic::eventFilter(QObject* obj,QEvent* e)
 {
-    if (e->type() == QEvent::MouseMove)
+    static QPoint pos;
+    static bool presslock = true;
+    if (e->type() == QEvent::MouseButtonPress)
     {
+        presslock = false;
+        pos = this->pos() - mapToGlobal(static_cast<QMouseEvent*>(e)->pos());
+    }
+    else if (e->type() == QEvent::MouseMove)
+    {
+        if(presslock)
+            return QWidget::eventFilter(obj, e);
+        albumslider->clickInterupt();
+        this->move(pos + mapToGlobal(static_cast<QMouseEvent*>(e)->pos()));
         return true;
     }
+    else if (e->type() == QEvent::MouseButtonRelease)
+    {
+        this->move(pos + mapToGlobal(static_cast<QMouseEvent*>(e)->pos()));
+        presslock = true;
+    }
+
     return QWidget::eventFilter(obj,e);
 }
 
@@ -66,7 +83,7 @@ void BricMusic::enterEvent(QEvent*)
     this->activateWindow();
     this->raise();
     btns_hidden = false;
-    if(ani.state()!=QAbstractAnimation::Running)
+    if (ani.state() != QAbstractAnimation::Running)
         on_ani_finished();
 }
 
@@ -80,44 +97,42 @@ void BricMusic::focusOutEvent(QFocusEvent*)
 {
     btns_hidden = true;
     if (ani.state() != QAbstractAnimation::Running)
-    {
-        ani.setTargetObject(btns[0]);
-        ani.setStartValue(btns_pos[0]);
-        ani.setEndValue(albumslider->mapToParent(QPoint(25, 25)));
-        ani.start();
-    }
+        on_ani_finished();
 }
 
 void BricMusic::on_ani_finished()
 {
-    int i = 0;
+    static int i = -1;
     QPoint center = albumslider->mapToParent(QPoint(25, 25));
+    if (i < 0)
+        if (btns_hidden)
+        {
+            for (int j = 0; j < 5; j++)
+                btns[j]->hide();
+            return;
+        }
+        else
+        {
+            i = 0;
+            for (int j = 0; j < 5; j++)
+                btns[j]->show();
+        }
+    else if (i == 5)
+        if (btns_hidden)
+            i--;
+        else
+            return;
+    ani.setTargetObject(btns[i]);
+
     if (btns_hidden)
-    {
-        for (i = 0; i < 5; i++)
-            if (!btns[i]->isHidden())
-            {
-                btns[i++]->hide();
-                if (i == 5)
-                    return;
-                ani.setTargetObject(btns[i]);
-                ani.setStartValue(btns_pos[i]);
-                ani.setEndValue(center);
-                ani.start();
-                return;
-            }
-    }
+	{
+        ani.setStartValue(btns_pos[i--]);
+        ani.setEndValue(center);
+	}
     else
     {
-        for (i = 4; i >= 0; i--)
-            if (btns[i]->isHidden())
-            {
-                btns[i]->show();
-                ani.setTargetObject(btns[i]);
-                ani.setEndValue(btns_pos[i]);
-                ani.setStartValue(center);
-                ani.start();
-                return;
-            }
+        ani.setStartValue(center);
+        ani.setEndValue(btns_pos[i++]);
     }
+    ani.start();
 }
