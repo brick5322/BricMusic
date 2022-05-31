@@ -23,7 +23,9 @@ protected:
     void focusOutEvent(QFocusEvent*);
 signals:
     void setVolume(int vol);
-private slots:
+    void setPic(uchar* picdata, int size);
+    void new_playtask();
+public slots:
     void on_ani_finished();
     void on_vol_btn_clicked();
     void on_lrc_btn_clicked();
@@ -31,6 +33,7 @@ private slots:
     void on_next_btn_clicked();
     void on_mode_btn_clicked();
     void on_albumslider_clicked();
+    void on_playtask_finished();
 private:
     Controller ctrler;
     BPrettyButton& vol_btn;
@@ -47,8 +50,11 @@ private:
 
     bool is_vol_on;
     bool is_lrc_on;
+    bool is_playing;
     int vol;
     int timestamp;
     int time;
+
+    const char* playtask;
     AudioFileManager::PlayBackMode mode;
 };

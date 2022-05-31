@@ -10,7 +10,8 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
 	pre_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
 	next_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
 	mode_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
-	btns_hidden(true),is_lrc_on(false),is_vol_on(true),mode(AudioFileManager::loopPlayBack),vol(127)
+	btns_hidden(true),is_lrc_on(false),is_vol_on(true),is_playing(false),
+	mode(AudioFileManager::loopPlayBack),vol(127)
 {
 	btns[0] = &pre_btn;
 	btns[1] = &lrc_btn;
@@ -55,6 +56,10 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
 	QObject::connect(&lrc_btn, &BPrettyButton::clicked, this, &BricMusic::on_lrc_btn_clicked);
 	QObject::connect(&vol_btn, &BPrettyButton::clicked, this, &BricMusic::on_vol_btn_clicked);
 	QObject::connect(&ani, &QAbstractAnimation::finished, this, &BricMusic::on_ani_finished);
+	QObject::connect(this, &BricMusic::setPic, albumslider, &BAlbumSlider::setAlbumPic);
+
+	QObject::connect(&ctrler, &Controller::timestampChanged, albumslider, &BAlbumSlider::setValue);
+	QObject::connect(&ctrler, &Controller::setDuration, albumslider, &BAlbumSlider::setMaximum);
 	
 }
 
@@ -160,6 +165,7 @@ void BricMusic::on_lrc_btn_clicked()
 
 void BricMusic::on_pre_btn_clicked()
 {
+	
 }
 
 void BricMusic::on_next_btn_clicked()
@@ -188,6 +194,15 @@ void BricMusic::on_mode_btn_clicked()
 }
 
 void BricMusic::on_albumslider_clicked()
+{
+	is_playing = !is_playing;
+	if (is_playing)
+		ctrler.setPlaying();
+	else
+		ctrler.setPausing();
+}
+
+void BricMusic::on_playtask_finished()
 {
 }
 

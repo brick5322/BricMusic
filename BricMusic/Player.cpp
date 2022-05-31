@@ -115,5 +115,5 @@ void Player::resetContext(SDL_AudioSpec& context) {
 	audioFormat.userdata = this;
 	audioFormat.callback = (SDL_AudioCallback)Player::Player_Callback;
 	SDL_OpenAudio(&audioFormat,nullptr);
-	play();
+	playReady();
 }

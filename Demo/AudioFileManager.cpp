@@ -5,31 +5,31 @@
 #include <QTime>
 #endif
 
-AudioFileManager::AudioFileManager(int argc,char** argv,PlayBackMode mode, QObject* parent)
-	: QObject(parent),pos(0),mode(mode)
+AudioFileManager::AudioFileManager(int argc,char** argv, QObject* parent)
+	: QObject(parent),pos(0)
 {
 	filepaths(move);
 	for (int i = 1; i < argc; i++)
 		filepaths.add(argv[i]);
 }
 
-void AudioFileManager::findNextAudio()
+void AudioFileManager::findNextAudio(const char*& path, Controller::PlayBackMode mode)
 {
 	const char* i = nullptr;
 	switch (mode)
 	{
-	case AudioFileManager::loop:
+	case Controller::loop:
 		i = filepaths[pos++];
 		break;
-	case AudioFileManager::loopPlayBack:
+	case Controller::loopPlayBack:
 		i = filepaths[pos++];
 		if (!i)
 			i = filepaths[pos = 0];
 		break;
-	case AudioFileManager::singleTune:
+	case Controller::singleTune:
 		i = filepaths[pos];
 		break;
-	case AudioFileManager::randomTune:
+	case Controller::randomTune:
 		while(!i)
 			i = filepaths[rand() % filepaths.length()];
 		break;
@@ -40,22 +40,14 @@ void AudioFileManager::findNextAudio()
 #ifdef _DEBUG
 	qDebug() << QTime::currentTime() << "findNextAudio:" << i;
 #endif	
-	if (i)
-		emit setFilePath(i);
-	else
-		emit endofList();
+	path = i;
+
+	//if (i)
+	//	emit setFilePath(i);
+	//else
+	//	emit endofList();
 }
 
 AudioFileManager::~AudioFileManager()
 {
-}
-
-AudioFileManager::PlayBackMode AudioFileManager::getMode()
-{
-	return mode;
-}
-
-void AudioFileManager::setMode(PlayBackMode mode)
-{
-	this->mode = mode;
 }

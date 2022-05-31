@@ -10,6 +10,7 @@
 Controller::Controller(QObject *parent)
 	: QObject(parent),fifo(SDL_buffersz * 128 * 2 *4,FIFO::StrictWrite|FIFO::ReadMostSz),is_finishing(false),is_paused(false),is_pausing(false),mtx(SDL_CreateMutex()),timerID(0),playTimestamp(0)
 {
+	qRegisterMetaType<Controller::PlayBackMode>("Controller::PlayBackMode");
 }
 
 Controller::~Controller()
@@ -69,6 +70,7 @@ void Controller::getContext(AVSampleFormat sampleFormat, int channel_layout, int
 	qDebug() << QTime::currentTime() << "Controller::start";
 #endif // _DEBUG
 	emit setContext(audioContext);
+	emit setDuration(audioTimestamps);
 	start();
 }
 
@@ -78,6 +80,11 @@ void Controller::setData(unsigned char* buffer, int len)
 	if (fifo[len] >> buffer)
 		emit timestampChanged(playTimestamp++);
 	SDL_UnlockMutex(mtx);
+}
+
+void Controller::setMode(PlayBackMode mode)
+{
+	this->mode = mode;
 }
 
 void Controller::on_player_terminated()
@@ -90,7 +97,12 @@ void Controller::on_player_terminated()
 #ifdef _DEBUG
 	qDebug() << QTime::currentTime()<<"emit playTaskFinish";
 #endif
-	emit playTaskFinish();
+	emit playTaskFinished();
+}
+
+void Controller::playTaskStart()
+{
+	emit setPlaying();
 }
 
 void Controller::start()
@@ -105,6 +117,16 @@ void Controller::stop()
 	this->is_finishing = true;
 	emit setPausing();
 	killTimer(timerID);
+}
+
+void Controller::playTaskInit()
+{
+	if(!audiopath)
+		emit getAudioPath(audiopath,mode);
+	if (audiopath)
+		emit setDecode(audiopath);
+	else
+		emit menuEmpty();
 }
 
 void Controller::timerEvent(QTimerEvent*)

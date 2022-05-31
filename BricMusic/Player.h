@@ -22,6 +22,7 @@ public slots:
 signals:
 	void getData(unsigned char* buffer,int len);
 	void terminated();
+	void playReady();
 public:
 	Player(Controller* parent = Q_NULLPTR);
 	static constexpr int SDL_buffersz = 1024;
