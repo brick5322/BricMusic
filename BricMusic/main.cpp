@@ -40,6 +40,7 @@ int main(int argc, char *argv[])
 	QObject::connect(&player, &Player::playReady, &ctrler, &Controller::playTaskReady);
 	QObject::connect(&player, &Player::paused, &ctrler, &Controller::on_player_paused);
 
+	QObject::connect(&ctrler, &Controller::stopDecoder, &decoder, &Decoder::close);
 	QObject::connect(&decoder, &Decoder::decodeFinish, &ctrler, &Controller::stop);
 	QObject::connect(&decoder, &Decoder::attachedPic, &w, &BricMusic::setPic);
 	QObject::connect(&decoder, &Decoder::decodeErr, &decoder, &Decoder::close);

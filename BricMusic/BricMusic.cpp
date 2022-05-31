@@ -7,13 +7,13 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
 	: QWidget(parent),ctrler(parent),
 	vol_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
 	lrc_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
-	pre_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
+	prev_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
 	next_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
 	mode_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
 	btns_hidden(true),is_lrc_on(false),is_vol_on(true),is_playing(true),
 	mode(Controller::loopPlayBack),vol(127)
 {
-	btns[0] = &pre_btn;
+	btns[0] = &prev_btn;
 	btns[1] = &lrc_btn;
 	btns[2] = &vol_btn;
 	btns[3] = &mode_btn;
@@ -46,7 +46,7 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
 	}
 	vol_btn.setTSVGpic(":/img/vol.tsvg");
 	lrc_btn.setTSVGpic(":/img/lrc-disable.tsvg");
-	pre_btn.setTSVGpic(":/img/prev.tsvg");
+	prev_btn.setTSVGpic(":/img/prev.tsvg");
 	next_btn.setTSVGpic(":/img/next.tsvg");
 	mode_btn.setTSVGpic(":/img/loopplayback.tsvg");
 	ani.setDuration(100);
@@ -55,6 +55,8 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
 	QObject::connect(&mode_btn, &BPrettyButton::clicked, this, &BricMusic::on_mode_btn_clicked);
 	QObject::connect(&lrc_btn, &BPrettyButton::clicked, this, &BricMusic::on_lrc_btn_clicked);
 	QObject::connect(&vol_btn, &BPrettyButton::clicked, this, &BricMusic::on_vol_btn_clicked);
+	QObject::connect(&prev_btn, &BPrettyButton::clicked, this, &BricMusic::on_prev_btn_clicked);
+	QObject::connect(&next_btn, &BPrettyButton::clicked, this, &BricMusic::on_next_btn_clicked);
 	QObject::connect(&ani, &QAbstractAnimation::finished, this, &BricMusic::on_ani_finished);
 	QObject::connect(albumslider, &BAlbumSlider::clicked, this, &BricMusic::on_albumslider_clicked);
 	QObject::connect(this, &BricMusic::setPic, albumslider, &BAlbumSlider::setAlbumPic);
@@ -170,13 +172,15 @@ void BricMusic::on_lrc_btn_clicked()
 		lrc_btn.setTSVGpic(":/img/lrc-disable.tsvg");
 }
 
-void BricMusic::on_pre_btn_clicked()
+void BricMusic::on_prev_btn_clicked()
 {
-	
+	ctrler.getPrevAudio();
 }
 
 void BricMusic::on_next_btn_clicked()
 {
+	ctrler.getNextAudio();
+
 }
 
 void BricMusic::on_mode_btn_clicked()
@@ -225,7 +229,6 @@ void BricMusic::on_playtask_ready()
 void BricMusic::on_playtask_finished()
 {
 	is_playing = false;
-	ctrler.flush_playtask();
 	emit ctrler.playTaskInit();
 }
 

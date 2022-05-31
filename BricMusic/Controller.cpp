@@ -132,6 +132,18 @@ void Controller::playTaskStart()
 	emit setPlaying();
 }
 
+void Controller::getNextAudio()
+{
+	emit getAudioPath(audiopath, mode);
+	emit stopDecoder();
+}
+
+void Controller::getPrevAudio()
+{
+	emit getAudioPath(audiopath, mode|prev);
+	emit stopDecoder();
+}
+
 void Controller::start()
 {
 	timerID = startTimer(10);
@@ -151,7 +163,10 @@ void Controller::playTaskInit()
 	if(!audiopath)
 		emit getAudioPath(audiopath,mode);
 	if (audiopath)
+	{
 		emit setDecode(audiopath);
+		audiopath = nullptr;
+	}
 	else
 		emit menuEmpty();
 }

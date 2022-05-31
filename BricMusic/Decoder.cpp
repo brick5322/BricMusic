@@ -38,6 +38,10 @@ Decoder::~Decoder()
 int Decoder::open(const char* filepath)
 {
 	int err = 0;
+#ifdef _DEBUG
+	qDebug() << filepath;
+#endif // DEBUG
+
 	if (err = avformat_open_input(&fmt, filepath, NULL, NULL))	{
 		emit deformatErr(err);
 		return err;
@@ -123,6 +127,7 @@ int Decoder::open(const char* filepath)
 void Decoder::close()
 {
 	emit decodeFinish();
+	av_packet_free(&picPacket);
 	avcodec_close(ctx);
 	avformat_close_input(&fmt);
 #ifdef _DEBUG

@@ -132,6 +132,18 @@ void Controller::playTaskStart()
 	emit setPlaying();
 }
 
+void Controller::getNextAudio()
+{
+	emit getAudioPath(audiopath, mode);
+	stop();
+}
+
+void Controller::getPrevAudio()
+{
+	emit getAudioPath(audiopath, mode|prev);
+	stop();
+}
+
 void Controller::start()
 {
 	timerID = startTimer(10);

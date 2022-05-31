@@ -27,7 +27,7 @@ public slots:
     void on_ani_finished();
     void on_vol_btn_clicked();
     void on_lrc_btn_clicked();
-    void on_pre_btn_clicked();
+    void on_prev_btn_clicked();
     void on_next_btn_clicked();
     void on_mode_btn_clicked();
     void on_albumslider_clicked();
@@ -37,7 +37,7 @@ private:
     Controller ctrler;
     BPrettyButton& vol_btn;
     BPrettyButton& lrc_btn;
-    BPrettyButton& pre_btn;
+    BPrettyButton& prev_btn;
     BPrettyButton& next_btn;
     BPrettyButton& mode_btn;
     BPrettyButton* btns[5];
