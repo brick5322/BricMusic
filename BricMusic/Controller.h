@@ -38,13 +38,14 @@ signals:
 	void setPlaying();
 	void setDuration(int duration);
 	void menuEmpty();
+	void paused();
 public slots:
 	void playTaskInit();
 	void playTaskStart();
 	void getContext(AVSampleFormat sampleFormat, int channel_layout, int sample_rate, double stream_duration);
 	void setData(unsigned char* buffer, int len);
 	void setMode(PlayBackMode mode);
-	void on_player_terminated();
+	void on_player_paused();
 	void start();
 	void stop();
 protected:

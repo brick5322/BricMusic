@@ -87,10 +87,10 @@ void Controller::setMode(PlayBackMode mode)
 	this->mode = mode;
 }
 
-void Controller::on_player_terminated()
+void Controller::on_player_paused()
 {
 	if (!is_finishing)
-		return;
+		return paused();
 	is_finishing = false;
 	is_paused = true;
 	is_pausing = false;

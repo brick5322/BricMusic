@@ -33,7 +33,7 @@ void Player::Player_Callback(Player* plr, Uint8* stream, int len)
 #ifdef _DEBUG
 		qDebug() << QTime::currentTime() << "emit terminate";
 #endif
-		emit plr->terminate();
+		plr->terminate();
 		return;
 	}
 	if (plr->pausing)
@@ -91,7 +91,7 @@ void Player::terminate(){
 #endif
 	SDL_PauseAudio(true);
 	pausing = false;
-	emit terminated();
+	emit paused();
 }
 
 void Player::close()

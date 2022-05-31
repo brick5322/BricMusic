@@ -172,7 +172,6 @@ void BAlbumSlider::mouseReleaseEvent(QMouseEvent* e)
 		emit clicked();
 		is_longPress_timing = false;
 		longPress_duration = 0;
-		is_rotated = !is_rotated;
 	}
 }
 

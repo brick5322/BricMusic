@@ -8,7 +8,9 @@
 #endif
 
 Controller::Controller(QObject *parent)
-	: QObject(parent),fifo(SDL_buffersz * 128 * 2 *4,FIFO::StrictWrite|FIFO::ReadMostSz),is_finishing(false),is_paused(false),is_pausing(false),mtx(SDL_CreateMutex()),timerID(0),playTimestamp(0)
+	: QObject(parent),fifo(SDL_buffersz * 128 * 2 *4,FIFO::StrictWrite|FIFO::ReadMostSz),
+	is_finishing(false),is_paused(false),is_pausing(false),
+	mtx(SDL_CreateMutex()),timerID(0),playTimestamp(0),audiopath(nullptr)
 {
 	qRegisterMetaType<Controller::PlayBackMode>("Controller::PlayBackMode");
 }
@@ -87,10 +89,10 @@ void Controller::setMode(PlayBackMode mode)
 	this->mode = mode;
 }
 
-void Controller::on_player_terminated()
+void Controller::on_player_paused()
 {
 	if (!is_finishing)
-		return;
+		return paused();
 	is_finishing = false;
 	is_paused = true;
 	is_pausing = false;
@@ -103,11 +105,6 @@ void Controller::on_player_terminated()
 void Controller::playTaskStart()
 {
 	emit setPlaying();
-}
-
-void Controller::playTaskStop()
-{
-	stop();
 }
 
 void Controller::start()

@@ -10,8 +10,8 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
 	pre_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
 	next_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
 	mode_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
-	btns_hidden(true),is_lrc_on(false),is_vol_on(true),is_playing(false),
-	mode(AudioFileManager::loopPlayBack),vol(127)
+	btns_hidden(true),is_lrc_on(false),is_vol_on(true),is_playing(true),
+	mode(Controller::loopPlayBack),vol(127)
 {
 	btns[0] = &pre_btn;
 	btns[1] = &lrc_btn;
@@ -56,11 +56,17 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
 	QObject::connect(&lrc_btn, &BPrettyButton::clicked, this, &BricMusic::on_lrc_btn_clicked);
 	QObject::connect(&vol_btn, &BPrettyButton::clicked, this, &BricMusic::on_vol_btn_clicked);
 	QObject::connect(&ani, &QAbstractAnimation::finished, this, &BricMusic::on_ani_finished);
+	QObject::connect(albumslider, &BAlbumSlider::clicked, this, &BricMusic::on_albumslider_clicked);
 	QObject::connect(this, &BricMusic::setPic, albumslider, &BAlbumSlider::setAlbumPic);
+
+
+	ctrler.setMode(mode);
 
 	QObject::connect(&ctrler, &Controller::timestampChanged, albumslider, &BAlbumSlider::setValue);
 	QObject::connect(&ctrler, &Controller::setDuration, albumslider, &BAlbumSlider::setMaximum);
-	
+	QObject::connect(&ctrler, &Controller::paused, albumslider, &BAlbumSlider::pauseRotate);
+	QObject::connect(&ctrler, &Controller::playTaskReady, this, &BricMusic::on_playtask_ready);
+
 }
 
 Controller& BricMusic::controller()
@@ -176,16 +182,16 @@ void BricMusic::on_mode_btn_clicked()
 {
 	switch (mode)
 	{
-	case AudioFileManager::loopPlayBack:
-		mode = AudioFileManager::singleTune;
+	case Controller::loopPlayBack:
+		mode = Controller::singleTune;
 		mode_btn.setTSVGpic(":/img/singletune.tsvg"); 
 		break;
-	case AudioFileManager::singleTune:
-		mode = AudioFileManager::randomTune;
+	case Controller::singleTune:
+		mode = Controller::randomTune;
 		mode_btn.setTSVGpic(":/img/randomtune.tsvg");
 		break;
-	case AudioFileManager::randomTune:
-		mode = AudioFileManager::loopPlayBack;
+	case Controller::randomTune:
+		mode = Controller::loopPlayBack;
 		mode_btn.setTSVGpic(":/img/loopplayback.tsvg");
 		break;
 	default:
@@ -197,14 +203,24 @@ void BricMusic::on_albumslider_clicked()
 {
 	is_playing = !is_playing;
 	if (is_playing)
+	{
+		albumslider->startRotate();
 		ctrler.setPlaying();
+	}
 	else
 		ctrler.setPausing();
+}
+
+void BricMusic::on_playtask_ready()
+{
+	albumslider->startRotate();
+	ctrler.playTaskStart();
 }
 
 void BricMusic::on_playtask_finished()
 {
 }
+
 
 void BricMusic::on_ani_finished()
 {

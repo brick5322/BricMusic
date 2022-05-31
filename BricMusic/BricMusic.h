@@ -5,7 +5,6 @@
 #include <QPropertyAnimation>
 #include "BPrettyButton.h"
 #include "BAlbumSlider.h"
-#include "AudioFileManager.h"
 #include "Controller.h"
 
 class BricMusic : public QWidget
@@ -24,7 +23,6 @@ protected:
 signals:
     void setVolume(int vol);
     void setPic(uchar* picdata, int size);
-    void new_playtask();
 public slots:
     void on_ani_finished();
     void on_vol_btn_clicked();
@@ -33,6 +31,7 @@ public slots:
     void on_next_btn_clicked();
     void on_mode_btn_clicked();
     void on_albumslider_clicked();
+    void on_playtask_ready();
     void on_playtask_finished();
 private:
     Controller ctrler;
@@ -55,6 +54,5 @@ private:
     int timestamp;
     int time;
 
-    const char* playtask;
-    AudioFileManager::PlayBackMode mode;
+    Controller::PlayBackMode mode;
 };

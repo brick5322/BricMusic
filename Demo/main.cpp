@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 	
 	//QObject::connect(&player, &Player::getData, &ctrler, &Controller::setData);
 	QObject::connect(&player, &Player::playReady, &ctrler, &Controller::playTaskReady);
-	QObject::connect(&player, &Player::terminated, &ctrler, &Controller::on_player_terminated);
+	QObject::connect(&player, &Player::paused, &ctrler, &Controller::on_player_paused);
 
 	QObject::connect(&decoder, &Decoder::decodeFinish, &ctrler, &Controller::stop);
 	QObject::connect(&decoder, &Decoder::decodeErr, &decoder, &Decoder::close);
