@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
 	QObject::connect(&ctrler, &Controller::setPausing, &player, &Player::pause);
 	QObject::connect(&ctrler, &Controller::setPlaying, &player, &Player::play);
 	QObject::connect(&ctrler, &Controller::getAudioPath, &manager, &AudioFileManager::findNextAudio);
+	QObject::connect(&ctrler, &Controller::flushDecoder, &decoder, &Decoder::flush);
 
 	//QObject::connect(&player, &Player::getData, &ctrler, &Controller::setData);
 	QObject::connect(&player, &Player::playReady, &ctrler, &Controller::playTaskReady);

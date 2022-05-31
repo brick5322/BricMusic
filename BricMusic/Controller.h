@@ -34,6 +34,7 @@ signals:
 	void timestampChanged(int timestamp);
 	void getAudioPath(const char*&, PlayBackMode);
 	void setDecode(const char*);
+	void flushDecoder(unsigned int timestamp);
 	void setPausing();
 	void setPlaying();
 	void setDuration(int duration);
@@ -42,6 +43,7 @@ signals:
 public slots:
 	void playTaskInit();
 	void playTaskStart();
+	void posChange(int timestamp);
 	void getContext(AVSampleFormat sampleFormat, int channel_layout, int sample_rate, double stream_duration);
 	void setData(unsigned char* buffer, int len);
 	void setMode(PlayBackMode mode);
@@ -62,4 +64,5 @@ private:
 	bool is_finishing;
 	bool is_pausing;
 	bool is_paused;
+	bool is_pos_changing;
 };

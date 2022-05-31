@@ -45,8 +45,6 @@ void Player::Player_Callback(Player* plr, Uint8* stream, int len)
 	SDL_memset(stream, 0, len);
 	static_cast<Controller*>(plr->parent())->setData(stream, len);
 
-	if (plr->privateVolume == Controller::AudioLevel)
-		goto ret;
 	switch (plr->audioFormat.format)
 	{
 	case AUDIO_S16SYS:

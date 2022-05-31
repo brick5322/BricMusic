@@ -131,13 +131,13 @@ bool BAlbumSlider::eventFilter(QObject* obj, QEvent* e)
 	{
 		QPoint pos = handle.mapToParent(static_cast<QMouseEvent*>(e)->pos());
 		length = calValue(pos);
-		emit sliderMoved(length);
 		return true;
 	}
 	else if (e->type() == QEvent::MouseButtonRelease)
 	{
 		length = calValue(handle.mapToParent(static_cast<QMouseEvent*>(e)->pos()));
 		setValue(length);
+		emit sliderMoved(length);
 		return QWidget::eventFilter(obj, e);
 	}
 	return QWidget::eventFilter(obj, e);
