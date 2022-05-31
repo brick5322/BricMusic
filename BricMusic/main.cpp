@@ -45,7 +45,6 @@ int main(int argc, char *argv[])
 
 
 	//Debug
-	QObject::connect(&ctrler, &Controller::playTaskFinished, &ctrler, &Controller::playTaskInit);
 	//QObject::connect(&ctrler, &Controller::timestampChanged, [](int timestamp) {qDebug() << QTime::currentTime() << timestamp; });
 	QObject::connect(&ctrler, &Controller::menuEmpty, &a, &QCoreApplication::quit);
 	ctrler.playTaskInit();

@@ -6,7 +6,7 @@
 #endif
 
 AudioFileManager::AudioFileManager(int argc,char** argv, QObject* parent)
-	: QObject(parent),pos(0)
+	: QObject(parent),pos(-1)
 {
 	filepaths(move);
 	for (int i = 1; i < argc; i++)
@@ -19,10 +19,10 @@ void AudioFileManager::findNextAudio(const char*& path, Controller::PlayBackMode
 	switch (mode)
 	{
 	case Controller::loop:
-		i = filepaths[pos++];
+		i = filepaths[++pos];
 		break;
 	case Controller::loopPlayBack:
-		i = filepaths[pos++];
+		i = filepaths[++pos];
 		if (!i)
 			i = filepaths[pos = 0];
 		break;

@@ -116,7 +116,7 @@ int Decoder::open(const char* filepath)
 #ifdef _DEBUG
 	qDebug() << QTime::currentTime() << "emit basicInfo";
 #endif
-	emit basicInfo(sampleFormat, channel_layout, sample_rate,(double)(stream->duration-stream->start_time)*stream->time_base.num/stream->time_base.den);
+	emit basicInfo(sampleFormat, channel_layout, sample_rate, (double)(stream->duration - stream->start_time) * stream->time_base.num / stream->time_base.den);
 	return err;
 }
 
@@ -132,7 +132,7 @@ void Decoder::close()
 
 void Decoder::flush(unsigned int timeStamp)
 {
-	av_seek_frame(fmt, stream->index, (int64_t)(timeStamp+ fmt->start_time) * stream->time_base.den/stream->time_base.num, AVSEEK_FLAG_BACKWARD);
+	av_seek_frame(fmt, stream->index, (int64_t)(timeStamp+ stream->start_time) * stream->time_base.num / stream->time_base.den, AVSEEK_FLAG_FRAME);
 }
 
 void Decoder::decode(FIFO& buffer) {

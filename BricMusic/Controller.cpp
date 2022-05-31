@@ -25,6 +25,16 @@ SDL_mutex* Controller::mutex()
 	return mtx;
 }
 
+void Controller::flush_playtask()
+{
+	audiopath = nullptr;
+}
+
+bool Controller::isFinishing()
+{
+	return is_finishing;
+}
+
 void Controller::getContext(AVSampleFormat sampleFormat, int channel_layout, int sample_rate,double stream_duration)
 {
 	audioTimestamps = ceil(stream_duration * sample_rate / SDL_buffersz);

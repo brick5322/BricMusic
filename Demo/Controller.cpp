@@ -9,7 +9,7 @@
 
 Controller::Controller(QObject *parent)
 	: QObject(parent),fifo(SDL_buffersz * AudioLevel * 2 *4,FIFO::StrictWrite|FIFO::ReadMostSz),
-	is_finishing(false),is_paused(false),is_pausing(false),
+	is_finishing(false),is_paused(false),is_pausing(false), is_pos_changing(false),
 	mtx(SDL_CreateMutex()),timerID(0),playTimestamp(0),audiopath(nullptr)
 {
 	qRegisterMetaType<Controller::PlayBackMode>("Controller::PlayBackMode");
@@ -23,6 +23,16 @@ Controller::~Controller()
 SDL_mutex* Controller::mutex()
 {
 	return mtx;
+}
+
+void Controller::flush_playtask()
+{
+	audiopath = nullptr;
+}
+
+bool Controller::isFinishing()
+{
+	return is_finishing;
 }
 
 void Controller::getContext(AVSampleFormat sampleFormat, int channel_layout, int sample_rate,double stream_duration)
@@ -91,15 +101,30 @@ void Controller::setMode(PlayBackMode mode)
 
 void Controller::on_player_paused()
 {
+	is_pausing = false;
+	if (is_pos_changing)
+	{
+		is_pos_changing = false;
+		return setPlaying();
+	}
+	is_paused = true;
 	if (!is_finishing)
 		return paused();
 	is_finishing = false;
-	is_paused = true;
-	is_pausing = false;
 #ifdef _DEBUG
 	qDebug() << QTime::currentTime()<<"emit playTaskFinish";
 #endif
 	emit playTaskFinished();
+}
+
+void Controller::posChange(int timestamp)
+{
+	if (is_pos_changing)
+		return;
+	is_pos_changing = true;
+	emit setPausing();
+	playTimestamp = timestamp - AudioLevel;
+	emit flushDecoder(timestamp * SDL_buffersz);
 }
 
 void Controller::playTaskStart()

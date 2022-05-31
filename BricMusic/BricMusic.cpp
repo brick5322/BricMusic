@@ -66,6 +66,7 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
 	QObject::connect(&ctrler, &Controller::setDuration, albumslider, &BAlbumSlider::setMaximum);
 	QObject::connect(&ctrler, &Controller::paused, albumslider, &BAlbumSlider::pauseRotate);
 	QObject::connect(&ctrler, &Controller::playTaskReady, this, &BricMusic::on_playtask_ready);
+	QObject::connect(&ctrler, &Controller::playTaskFinished, this, &BricMusic::on_playtask_finished);
 
 }
 
@@ -202,14 +203,16 @@ void BricMusic::on_mode_btn_clicked()
 
 void BricMusic::on_albumslider_clicked()
 {
+	if (ctrler.isFinishing())
+		return;
 	is_playing = !is_playing;
 	if (is_playing)
 	{
 		albumslider->startRotate();
-		ctrler.setPlaying();
+		emit ctrler.setPlaying();
 	}
 	else
-		ctrler.setPausing();
+		emit ctrler.setPausing();
 }
 
 void BricMusic::on_playtask_ready()
@@ -222,7 +225,8 @@ void BricMusic::on_playtask_ready()
 void BricMusic::on_playtask_finished()
 {
 	is_playing = false;
-	ctrler.playTaskInit();
+	ctrler.flush_playtask();
+	emit ctrler.playTaskInit();
 }
 
 

@@ -24,6 +24,8 @@ public:
 	Controller(QObject *parent = Q_NULLPTR);
 	~Controller();
 	SDL_mutex* mutex();
+	void flush_playtask();
+	bool isFinishing();
 signals:
 	void getData(FIFO&);
 	void setContext(SDL_AudioSpec&);
