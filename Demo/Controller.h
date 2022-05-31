@@ -15,7 +15,7 @@ extern "C"
 
 constexpr int AlbumSZ = 100;
 
-class Controller : public QTimer
+class Controller : public QObject
 {
 	Q_OBJECT
 signals:
@@ -29,7 +29,10 @@ public slots:
 	void getContext(AVSampleFormat sampleFormat, int channel_layout, int sample_rate);
 	void setData(unsigned char* buffer, int len);
 	void on_player_terminated();
+	void start();
 	void stop();
+protected:
+	void timerEvent(QTimerEvent*);
 public:
 	Controller(QObject *parent = Q_NULLPTR);
 	~Controller();
@@ -39,6 +42,7 @@ private:
 	SDL_mutex* mtx;
 	QPixmap albumImage;
 	SDL_AudioSpec audioContext;
+	int timerID;
 	bool is_finishing;
 	bool is_pausing;
 	bool is_paused;

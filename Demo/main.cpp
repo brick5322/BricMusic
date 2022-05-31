@@ -55,7 +55,6 @@ int main(int argc, char *argv[])
     Player player(&ctrler);
     Decoder decoder(&ctrler);
 
-    ctrler.setInterval(10);
 
     QObject::connect(&decoder, &Decoder::basicInfo, &ctrler, &Controller::getContext);
 
@@ -63,7 +62,6 @@ int main(int argc, char *argv[])
     QObject::connect(&ctrler, &Controller::setContext, &player, &Player::resetContext);
     QObject::connect(&ctrler, &Controller::setPausing, &player, &Player::pause);
     QObject::connect(&ctrler, &Controller::playTaskFinish, &manager ,&AudioFileManager::findNextAudio);
-    QObject::connect(&ctrler, &QTimer::timeout, &ctrler, &Controller::on_controller_timeout);
 
     QObject::connect(&player, &Player::getData, &ctrler, &Controller::setData);
 

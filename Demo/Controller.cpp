@@ -25,7 +25,7 @@ inline QPixmap PixmapToRound(const QPixmap& src)
 }
 
 Controller::Controller(QObject *parent)
-	: QTimer(parent),fifo(1024 * 128 * 2 *4),is_finishing(false),is_paused(false),is_pausing(false),mtx(SDL_CreateMutex())
+	: QObject(parent),fifo(1024 * 128 * 2 *4),is_finishing(false),is_paused(false),is_pausing(false),mtx(SDL_CreateMutex()),timerID(0)
 {
 }
 
@@ -84,7 +84,7 @@ void Controller::getContext(AVSampleFormat sampleFormat, int channel_layout, int
 	qDebug() << QTime::currentTime() << "Controller::start";
 #endif // _DEBUG
 	emit setContext(audioContext);
-	QTimer::start();
+	start();
 }
 
 void Controller::setData(unsigned char* buffer, int len)
@@ -114,13 +114,24 @@ void Controller::on_player_terminated()
 	//这个函数可以写的太多了，它代表着音频播放结束最后的处理，之后会返回文件管理
 }
 
+void Controller::start()
+{
+	timerID = startTimer(10);
+}
+
 
 void Controller::stop()
 {
-	if (!this->isActive())
+	if (!timerID)
 		return;
 	this->is_finishing = true;
 	emit setPausing();
-	this->QTimer::stop();
+	killTimer(timerID);
+}
+
+void Controller::timerEvent(QTimerEvent*)
+{
+	if (fifo.freesize())
+		getData(fifo);
 }
 
