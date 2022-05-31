@@ -23,8 +23,8 @@ public:
 	~Decoder();
 signals:
 	void attachedPic(uchar* picdata,int size);
-	void basicInfo(AVSampleFormat sampleFormat,	int channel_layout,	int sample_rate);
-	//void decodeFin();
+	void basicInfo(AVSampleFormat sampleFormat,	int channel_layout,	int sample_rate,double stream_duration);
+	void decodeFinish();
 	void decodeErr(int);
 	void deformatErr(int);
 public slots:

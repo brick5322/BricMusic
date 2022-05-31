@@ -112,18 +112,18 @@ int Decoder::open(const char* filepath)
 	default:
 		break;
 	}
-	av_seek_frame(fmt, stream->index, (int64_t)fmt->start_time, AVSEEK_FLAG_FRAME);
+	av_seek_frame(fmt, stream->index, (int64_t)stream->start_time, AVSEEK_FLAG_FRAME);
 #ifdef _DEBUG
 	qDebug() << QTime::currentTime() << "emit basicInfo";
 #endif
-	emit basicInfo(sampleFormat, channel_layout, sample_rate);
+	emit basicInfo(sampleFormat, channel_layout, sample_rate,(double)(stream->duration-stream->start_time)*stream->time_base.num/stream->time_base.den);
 	return err;
 }
 
 void Decoder::close()
 {
-	static_cast<Controller*>(parent())->stop();
-	//avcodec_close(ctx);
+	emit decodeFinish();
+	avcodec_close(ctx);
 	avformat_close_input(&fmt);
 #ifdef _DEBUG
 	qDebug() << QTime::currentTime() << "close context";

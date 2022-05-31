@@ -7,7 +7,6 @@
 class AudioFileManager : public QObject
 {
 	Q_OBJECT
-
 public:
 	enum PlayBackMode { loop, loopPlayBack, singleTune, randomTune };
 

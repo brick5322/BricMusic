@@ -36,7 +36,6 @@ void Player::Player_Callback(Player* plr, Uint8* stream, int len)
 		emit plr->terminate();
 		return;
 	}
-
 	if (plr->pausing)
 		plr->privateVolume--;
 	else if (plr->privateVolume < plr->externVolume)
@@ -92,7 +91,7 @@ void Player::terminate(){
 #endif
 	SDL_PauseAudio(true);
 	pausing = false;
-	static_cast<Controller*>(parent())->on_player_terminated();
+	emit terminated();
 }
 
 void Player::close()

@@ -7,25 +7,8 @@
 #include <QTime>
 #endif
 
-
-inline QPixmap PixmapToRound(const QPixmap& src)
-{
-	if (src.isNull()) {
-		return QPixmap();
-	}
-	QBitmap mask(AlbumSZ, AlbumSZ);
-	QPainter painter(&mask);
-	painter.setRenderHint(QPainter::SmoothPixmapTransform);
-	painter.fillRect(0, 0, AlbumSZ, AlbumSZ, Qt::white);
-	painter.setBrush(QColor(0, 0, 0));
-	painter.drawRoundedRect(0, 0, AlbumSZ, AlbumSZ, 100, 100);
-	QPixmap image = src.scaled(AlbumSZ, AlbumSZ);
-	image.setMask(mask);
-	return image;
-}
-
 Controller::Controller(QObject *parent)
-	: QTimer(parent),fifo(1024 * 128 * 2 *4),is_finishing(false),is_paused(false),is_pausing(false),mtx(SDL_CreateMutex())
+	: QObject(parent),fifo(SDL_buffersz * 128 * 2 *4,FIFO::StrictWrite|FIFO::ReadMostSz),is_finishing(false),is_paused(false),is_pausing(false),mtx(SDL_CreateMutex()),timerID(0),playTimestamp(0)
 {
 }
 
@@ -39,8 +22,9 @@ SDL_mutex* Controller::mutex()
 	return mtx;
 }
 
-void Controller::getContext(AVSampleFormat sampleFormat, int channel_layout, int sample_rate)
+void Controller::getContext(AVSampleFormat sampleFormat, int channel_layout, int sample_rate,double stream_duration)
 {
+	audioTimestamps = ceil(stream_duration * sample_rate / SDL_buffersz);
 	switch (sampleFormat)
 	{
 	case AV_SAMPLE_FMT_U8:
@@ -70,7 +54,7 @@ void Controller::getContext(AVSampleFormat sampleFormat, int channel_layout, int
 		audioContext.channels = 2;
 		break;
 	}
-	int sz = 1024 * 128 * audioContext.channels * (audioContext.format & 0x3f) >> 3;
+	int sz = SDL_buffersz * 128 * audioContext.channels * (audioContext.format & 0x3f) >> 3;
 
 #ifdef _DEBUG
 	qDebug() << QTime::currentTime() << "getContext" << sz;
@@ -80,24 +64,20 @@ void Controller::getContext(AVSampleFormat sampleFormat, int channel_layout, int
 		fifo = FIFO(sz);
 	else
 		fifo.reset();
+	playTimestamp = 0;
 #ifdef _DEBUG
 	qDebug() << QTime::currentTime() << "Controller::start";
 #endif // _DEBUG
 	emit setContext(audioContext);
-	QTimer::start();
+	start();
 }
 
 void Controller::setData(unsigned char* buffer, int len)
 {
 	SDL_LockMutex(mtx);
-	fifo[len] >> buffer;
+	if (fifo[len] >> buffer)
+		emit timestampChanged(playTimestamp++);
 	SDL_UnlockMutex(mtx);
-}
-
-void Controller::on_controller_timeout()
-{
-	if (fifo.freesize())
-		getData(fifo);
 }
 
 void Controller::on_player_terminated()
@@ -111,16 +91,24 @@ void Controller::on_player_terminated()
 	qDebug() << QTime::currentTime()<<"emit playTaskFinish";
 #endif
 	emit playTaskFinish();
-	//这个函数可以写的太多了，它代表着音频播放结束最后的处理，之后会返回文件管理
 }
 
+void Controller::start()
+{
+	timerID = startTimer(10);
+}
 
 void Controller::stop()
 {
-	if (!this->isActive())
+	if (!timerID)
 		return;
 	this->is_finishing = true;
 	emit setPausing();
-	this->QTimer::stop();
+	killTimer(timerID);
 }
 
+void Controller::timerEvent(QTimerEvent*)
+{
+	if (fifo.freesize())
+		getData(fifo);
+}
