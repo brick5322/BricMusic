@@ -85,13 +85,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Node.c" />
     <QtRcc Include="BricMusic.qrc" />
     <QtUic Include="BricMusic.ui" />
     <QtMoc Include="BricMusic.h" />
+    <ClCompile Include="AudioFileManager.cpp" />
     <ClCompile Include="BAlbumSlider.cpp" />
     <ClCompile Include="BPrettyButton.cpp" />
     <ClCompile Include="BPushButton.cpp" />
     <ClCompile Include="BricMusic.cpp" />
+    <ClCompile Include="List.c" />
+    <ClCompile Include="List_cstr.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -102,6 +106,13 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="BPushButton.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="AudioFileManager.h" />
+    <ClInclude Include="List.h" />
+    <ClInclude Include="List_cstr.h" />
+    <ClInclude Include="Node.h" />
+    <ClInclude Include="pubdefs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

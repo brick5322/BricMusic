@@ -9,8 +9,12 @@
         <file>img/lrc-able.tsvg</file>
         <file>img/lrc-disable.tsvg</file>
         <file>img/next.tsvg</file>
+        <file>img/prev.tsvg</file>
+        <file>img/non-vol.tsvg</file>
+        <file>img/vol.tsvg</file>
         <file>img/pause.tsvg</file>
         <file>img/play.tsvg</file>
-        <file>img/prev.tsvg</file>
+        <file>img/vol1.tsvg</file>
+        <file>img/vol2.tsvg</file>
     </qresource>
 </RCC>

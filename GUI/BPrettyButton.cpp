@@ -8,12 +8,13 @@ BPrettyButton::BPrettyButton(QColor edge, QColor background, QColor highlight, Q
 	: QLabel(parent),edge(edge),background(background),highlight(highlight),pic(size()* 0.8),
 	is_pressed(false),is_inside(false),normalbrush(background)
 {
-	gradientbrush = QBrush(gra);
 	pic.fill(Qt::transparent);
 	gra.setCenter(QPointF(10 + width() / 2,10 + height() / 2));
 	gra.setRadius((double)width() / 2);
 	gra.setColorAt(0, highlight);
 	gra.setColorAt(1, background);
+	gradientbrush = QBrush(gra);
+
 }
 
 BPrettyButton::~BPrettyButton()
