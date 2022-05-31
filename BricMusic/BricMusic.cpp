@@ -197,6 +197,7 @@ void BricMusic::on_mode_btn_clicked()
 	default:
 		break;
 	}
+	ctrler.setMode(mode);
 }
 
 void BricMusic::on_albumslider_clicked()
@@ -213,12 +214,15 @@ void BricMusic::on_albumslider_clicked()
 
 void BricMusic::on_playtask_ready()
 {
+	is_playing = true;
 	albumslider->startRotate();
 	ctrler.playTaskStart();
 }
 
 void BricMusic::on_playtask_finished()
 {
+	is_playing = false;
+	ctrler.playTaskInit();
 }
 
 

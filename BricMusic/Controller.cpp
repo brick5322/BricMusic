@@ -8,7 +8,7 @@
 #endif
 
 Controller::Controller(QObject *parent)
-	: QObject(parent),fifo(SDL_buffersz * 128 * 2 *4,FIFO::StrictWrite|FIFO::ReadMostSz),
+	: QObject(parent),fifo(SDL_buffersz * AudioLevel * 2 *4,FIFO::StrictWrite|FIFO::ReadMostSz),
 	is_finishing(false),is_paused(false),is_pausing(false),
 	mtx(SDL_CreateMutex()),timerID(0),playTimestamp(0),audiopath(nullptr)
 {
@@ -57,7 +57,7 @@ void Controller::getContext(AVSampleFormat sampleFormat, int channel_layout, int
 		audioContext.channels = 2;
 		break;
 	}
-	int sz = SDL_buffersz * 128 * audioContext.channels * (audioContext.format & 0x3f) >> 3;
+	int sz = SDL_buffersz * AudioLevel * audioContext.channels * (audioContext.format & 0x3f) >> 3;
 
 #ifdef _DEBUG
 	qDebug() << QTime::currentTime() << "getContext" << sz;

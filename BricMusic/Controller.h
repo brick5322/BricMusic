@@ -19,10 +19,8 @@ class Controller : public QObject
 
 public:
 	static constexpr size_t SDL_buffersz = 1024;
+	static constexpr size_t AudioLevel = 64;
 	enum PlayBackMode { loop, loopPlayBack, singleTune, randomTune };
-
-	//Q_ENUM(PlayBackMode);
-
 	Controller(QObject *parent = Q_NULLPTR);
 	~Controller();
 	SDL_mutex* mutex();

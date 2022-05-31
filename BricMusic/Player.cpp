@@ -15,7 +15,7 @@ struct SDL_Initializer {
 	}
 }initializer;
 
-Player::Player(Controller* parent): QObject(parent),externVolume(128),privateVolume(128),pausing(false)
+Player::Player(Controller* parent): QObject(parent),externVolume(128),privateVolume(Controller::AudioLevel),pausing(false)
 {
 	audioFormat.freq = 44100;
 	audioFormat.channels = 2;
@@ -38,32 +38,32 @@ void Player::Player_Callback(Player* plr, Uint8* stream, int len)
 	}
 	if (plr->pausing)
 		plr->privateVolume--;
-	else if (plr->privateVolume < plr->externVolume)
+	else if (plr->privateVolume < Controller::AudioLevel)
 		plr->privateVolume++;
 	else
-		plr->privateVolume = plr->externVolume;
+		plr->privateVolume = Controller::AudioLevel;
 	SDL_memset(stream, 0, len);
 	static_cast<Controller*>(plr->parent())->setData(stream, len);
 
-	if (plr->privateVolume == 128)
+	if (plr->privateVolume == Controller::AudioLevel)
 		goto ret;
 	switch (plr->audioFormat.format)
 	{
 	case AUDIO_S16SYS:
 		for (int i = 0; i < len/sizeof(short); i++)
-			((short*)stream)[i] *= (double)plr->privateVolume/128;
+			((short*)stream)[i] *= (double)plr->privateVolume *plr->externVolume/ (Controller::AudioLevel<<7);
 		break;
 	case AUDIO_S32SYS:
 		for (int i = 0; i < len/sizeof(int); i++)
-			((int*)stream)[i] *= (double)plr->privateVolume / 128;
+			((int*)stream)[i] *= (double)plr->privateVolume * plr->externVolume / (Controller::AudioLevel << 7);
 		break;
 	case AUDIO_U16SYS:
 		for (int i = 0; i < len / sizeof(short); i++)
-			((uint16_t*)stream)[i] *= (double)plr->privateVolume / 128;
+			((uint16_t*)stream)[i] *= (double)plr->privateVolume * plr->externVolume / (Controller::AudioLevel << 7);
 		break;
 	case AUDIO_U8:
 		for (int i = 0; i < len; i++)
-			stream[i] *= (double)plr->privateVolume / 128;
+			stream[i] *= (double)plr->privateVolume * plr->externVolume / (Controller::AudioLevel << 7);
 		break;
 	default:
 		break;
