@@ -16,5 +16,7 @@
         <file>img/play.tsvg</file>
         <file>img/vol1.tsvg</file>
         <file>img/vol2.tsvg</file>
+        <file>img/BM-LOGO/icon16.png</file>
+        <file>img/vision-disable.tsvg</file>
     </qresource>
 </RCC>

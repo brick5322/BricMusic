@@ -113,6 +113,12 @@ void BAlbumSlider::startRotate()
 	is_rotated = true;
 }
 
+void BAlbumSlider::resetRotate()
+{
+	is_rotated = false;
+	image_rotate_angle = 0;
+}
+
 void BAlbumSlider::clickInterupt()
 {
 	is_clicking = false;
@@ -223,8 +229,6 @@ void BAlbumSlider::timerEvent(QTimerEvent*)
 	if (longPress_duration >= defaultFrame)
 	{
 		emit longPressed();
-		is_rotated = false;
-		image_rotate_angle = 0;
 		is_longPress_timing = false;
 		is_clicking = false;
 		longPress_duration = 0;

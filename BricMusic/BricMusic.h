@@ -12,36 +12,39 @@ class BricMusic : public QWidget
     Q_OBJECT
 
 public:
-    BricMusic(const QColor& color,QWidget *parent = Q_NULLPTR);
+    BricMusic(const QColor& color,const char* firstAudioPath = nullptr,QWidget *parent = Q_NULLPTR);
     Controller& controller();
 protected:
     bool eventFilter(QObject* obj, QEvent*);
     void enterEvent(QEvent*);
     void leaveEvent(QEvent*);
     void wheelEvent(QWheelEvent*);
+    void closeEvent(QCloseEvent*);
     void focusOutEvent(QFocusEvent*);
 signals:
     void setVolume(int vol);
     void setPic(uchar* picdata, int size);
-public slots:
+private slots:
     void on_ani_finished();
     void on_vol_btn_clicked();
-    void on_lrc_btn_clicked();
+    void on_hide_btn_clicked();
     void on_prev_btn_clicked();
     void on_next_btn_clicked();
     void on_mode_btn_clicked();
     void on_albumslider_clicked();
+public slots:
     void on_playtask_ready();
     void on_playtask_finished();
 private:
     Controller ctrler;
     BPrettyButton& vol_btn;
-    BPrettyButton& lrc_btn;
+    BPrettyButton& hide_btn;
     BPrettyButton& prev_btn;
     BPrettyButton& next_btn;
     BPrettyButton& mode_btn;
     BPrettyButton* btns[5];
     QPoint btns_pos[5];
+    int ani_current_btn;
     bool btns_hidden;
 
     BAlbumSlider* albumslider;

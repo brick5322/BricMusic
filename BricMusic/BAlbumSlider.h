@@ -37,6 +37,7 @@ public slots:
 	void setMaximum(double);
 	void pauseRotate();
 	void startRotate();
+	void resetRotate();
 	void clickInterupt();
 protected:
 	bool eventFilter(QObject*, QEvent*);

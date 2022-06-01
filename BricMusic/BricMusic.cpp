@@ -2,19 +2,20 @@
 #include <QDebug>
 #include <QCoreApplication>
 #include <QFocusEvent>
+#include <QIcon>
 
-BricMusic::BricMusic(const QColor& color, QWidget* parent)
-	: QWidget(parent),ctrler(parent),
+BricMusic::BricMusic(const QColor& color, const char* firstAudioPath ,QWidget* parent)
+	: QWidget(parent),ctrler(firstAudioPath ,parent),
 	vol_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
-	lrc_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
+	hide_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
 	prev_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
 	next_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
 	mode_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
-	btns_hidden(true),is_lrc_on(false),is_vol_on(true),is_playing(true),
+	btns_hidden(true),is_lrc_on(false),is_vol_on(true),is_playing(true), ani_current_btn(-1),
 	mode(Controller::loopPlayBack),vol(127)
 {
 	btns[0] = &prev_btn;
-	btns[1] = &lrc_btn;
+	btns[1] = &hide_btn;
 	btns[2] = &vol_btn;
 	btns[3] = &mode_btn;
 	btns[4] = &next_btn;
@@ -27,8 +28,9 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
 	albumslider->installEventFilter(this);
 
 	setAttribute(Qt::WA_TranslucentBackground);
-	setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+	setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Tool);
 	setFocusPolicy(Qt::StrongFocus);
+	setWindowIcon(QIcon(":/img/icon.png"));
 
 	QPoint center = albumslider->mapToParent(QPoint(25, 25));
 
@@ -45,7 +47,7 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
 		btns[i]->hide();
 	}
 	vol_btn.setTSVGpic(":/img/vol.tsvg");
-	lrc_btn.setTSVGpic(":/img/lrc-disable.tsvg");
+	hide_btn.setTSVGpic(":/img/vision-disable.tsvg");
 	prev_btn.setTSVGpic(":/img/prev.tsvg");
 	next_btn.setTSVGpic(":/img/next.tsvg");
 	mode_btn.setTSVGpic(":/img/loopplayback.tsvg");
@@ -53,12 +55,13 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
 	ani.setPropertyName("pos");
 
 	QObject::connect(&mode_btn, &BPrettyButton::clicked, this, &BricMusic::on_mode_btn_clicked);
-	QObject::connect(&lrc_btn, &BPrettyButton::clicked, this, &BricMusic::on_lrc_btn_clicked);
+	QObject::connect(&hide_btn, &BPrettyButton::clicked, this, &BricMusic::on_hide_btn_clicked);
 	QObject::connect(&vol_btn, &BPrettyButton::clicked, this, &BricMusic::on_vol_btn_clicked);
 	QObject::connect(&prev_btn, &BPrettyButton::clicked, this, &BricMusic::on_prev_btn_clicked);
 	QObject::connect(&next_btn, &BPrettyButton::clicked, this, &BricMusic::on_next_btn_clicked);
 	QObject::connect(&ani, &QAbstractAnimation::finished, this, &BricMusic::on_ani_finished);
 	QObject::connect(albumslider, &BAlbumSlider::clicked, this, &BricMusic::on_albumslider_clicked);
+
 	QObject::connect(this, &BricMusic::setPic, albumslider, &BAlbumSlider::setAlbumPic);
 
 
@@ -67,8 +70,11 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
 	QObject::connect(&ctrler, &Controller::timestampChanged, albumslider, &BAlbumSlider::setValue);
 	QObject::connect(&ctrler, &Controller::setDuration, albumslider, &BAlbumSlider::setMaximum);
 	QObject::connect(&ctrler, &Controller::paused, albumslider, &BAlbumSlider::pauseRotate);
+
 	QObject::connect(&ctrler, &Controller::playTaskReady, this, &BricMusic::on_playtask_ready);
 	QObject::connect(&ctrler, &Controller::playTaskFinished, this, &BricMusic::on_playtask_finished);
+	QObject::connect(&ctrler, &Controller::menuEmpty, this, &BricMusic::close);
+
 	QObject::connect(albumslider, &BAlbumSlider::sliderMoved, &ctrler, &Controller::posChange);
 }
 
@@ -136,6 +142,13 @@ void BricMusic::wheelEvent(QWheelEvent* e)
 		emit setVolume(vol);
 }
 
+void BricMusic::closeEvent(QCloseEvent* e)
+{
+	emit ctrler.stopDecoder();
+	ctrler.stop();
+	e->accept();
+}
+
 void BricMusic::focusOutEvent(QFocusEvent*)
 {
 	btns_hidden = true;
@@ -163,13 +176,18 @@ void BricMusic::on_vol_btn_clicked()
 	}
 }
 
-void BricMusic::on_lrc_btn_clicked()
+void BricMusic::on_hide_btn_clicked()
 {
-	is_lrc_on = !is_lrc_on;
-	if (is_lrc_on)
-		lrc_btn.setTSVGpic(":/img/lrc-able.tsvg");
-	else
-		lrc_btn.setTSVGpic(":/img/lrc-disable.tsvg");
+	btns_hidden = true;
+	ani.stop();
+	ani_current_btn = -1;
+	QPoint center = albumslider->mapToParent(QPoint(25, 25));
+	for (int i = 0; i < 5; i++)
+	{
+		btns[i]->move(center);
+		btns[i]->hide();
+	}
+	hide();
 }
 
 void BricMusic::on_prev_btn_clicked()
@@ -180,7 +198,6 @@ void BricMusic::on_prev_btn_clicked()
 void BricMusic::on_next_btn_clicked()
 {
 	ctrler.getNextAudio();
-
 }
 
 void BricMusic::on_mode_btn_clicked()
@@ -234,9 +251,8 @@ void BricMusic::on_playtask_finished()
 
 void BricMusic::on_ani_finished()
 {
-	static int i = -1;
 	QPoint center = albumslider->mapToParent(QPoint(25, 25));
-	if (i < 0)
+	if (ani_current_btn < 0)
 		if (btns_hidden)
 		{
 			for (int j = 0; j < 5; j++)
@@ -245,26 +261,26 @@ void BricMusic::on_ani_finished()
 		}
 		else
 		{
-			i = 0;
+			ani_current_btn = 0;
 			for (int j = 0; j < 5; j++)
 				btns[j]->show();
 		}
-	else if (i == 5)
+	else if (ani_current_btn == 5)
 		if (btns_hidden)
-			i--;
+			ani_current_btn--;
 		else
 			return;
-	ani.setTargetObject(btns[i]);
+	ani.setTargetObject(btns[ani_current_btn]);
 
 	if (btns_hidden)
 	{
-		ani.setStartValue(btns_pos[i--]);
+		ani.setStartValue(btns_pos[ani_current_btn--]);
 		ani.setEndValue(center);
 	}
 	else
 	{
 		ani.setStartValue(center);
-		ani.setEndValue(btns_pos[i++]);
+		ani.setEndValue(btns_pos[ani_current_btn++]);
 	}
 	ani.start();
 }

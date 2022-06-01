@@ -7,10 +7,10 @@
 #include <QTime>
 #endif
 
-Controller::Controller(QObject *parent)
+Controller::Controller(const char* path ,QObject *parent)
 	: QObject(parent),fifo(SDL_buffersz * AudioLevel * 2 *4,FIFO::StrictWrite|FIFO::ReadMostSz),
 	is_finishing(false),is_paused(false),is_pausing(false), is_pos_changing(false),
-	mtx(SDL_CreateMutex()),timerID(0),playTimestamp(0),audiopath(nullptr)
+	mtx(SDL_CreateMutex()),timerID(0),playTimestamp(0),audiopath(path)
 {
 	qRegisterMetaType<Controller::PlayBackMode>("Controller::PlayBackMode");
 }
@@ -153,7 +153,7 @@ void Controller::stop()
 {
 	if (!timerID)
 		return;
-	this->is_finishing = true;
+	is_finishing = true;
 	emit setPausing();
 	killTimer(timerID);
 }

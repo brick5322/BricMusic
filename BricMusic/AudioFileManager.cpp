@@ -6,7 +6,7 @@
 #endif
 
 AudioFileManager::AudioFileManager(int argc,char** argv, QObject* parent)
-	: QObject(parent),pos(-1)
+	: QObject(parent),pos(0)
 {
 	filepaths(move);
 	for (int i = 1; i < argc; i++)
@@ -15,39 +15,43 @@ AudioFileManager::AudioFileManager(int argc,char** argv, QObject* parent)
 
 void AudioFileManager::findNextAudio(const char*& path, int mode)
 {
-	const char* i = nullptr;
-	switch (mode)
+	path = nullptr;
+	if (mode & Controller::prev)
 	{
-	case Controller::loop:
-		i = filepaths[++pos];
-		break;
-	case Controller::loopPlayBack:
-		i = filepaths[++pos];
-		if (!i)
-			i = filepaths[pos = 0];
-		break;
-	case Controller::singleTune:
-		i = filepaths[pos];
-		break;
-	case Controller::randomTune:
-		while(!i)
-			i = filepaths[rand() % filepaths.length()];
-		break;
-	default:
-		break;
+		if (!(path = filepaths[--pos]))
+			path = filepaths[pos = filepaths.length() - 1];
 	}
-	
+	else
+		switch (mode)
+		{
+		case Controller::loop:
+			path = filepaths[++pos];
+			break;
+		case Controller::loopPlayBack:
+			path = filepaths[++pos];
+			if (!path)
+				path = filepaths[pos = 0];
+			break;
+		case Controller::singleTune:
+			path = filepaths[pos];
+			break;
+		case Controller::randomTune:
+			while (!path)
+				path = filepaths[pos = rand() % filepaths.length()];
+			break;
+		default:
+			break;
+		}
 #ifdef _DEBUG
-	qDebug() << QTime::currentTime() << "findNextAudio:" << i;
+	qDebug() << QTime::currentTime() << "findNextAudio:" << path;
 #endif	
-	path = i;
-
-	//if (i)
-	//	emit setFilePath(i);
-	//else
-	//	emit endofList();
 }
 
 AudioFileManager::~AudioFileManager()
 {
+}
+
+const char* AudioFileManager::findFirstAudio()
+{
+	return filepaths[0];
 }
