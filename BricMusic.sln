@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GUI", "GUI\GUI.vcxproj", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BricMusic", "BricMusic\BricMusic.vcxproj", "{147DF00B-977B-4E10-B1B3-7E671088FEEC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AudioFileManager", "AudioFileManager\AudioFileManager.vcxproj", "{D72B16F9-A16F-41CE-AC63-50BD32728D17}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -37,6 +39,14 @@ Global
 		{147DF00B-977B-4E10-B1B3-7E671088FEEC}.Release|x64.Build.0 = Release|x64
 		{147DF00B-977B-4E10-B1B3-7E671088FEEC}.Release|x86.ActiveCfg = Release|x64
 		{147DF00B-977B-4E10-B1B3-7E671088FEEC}.Release|x86.Build.0 = Release|x64
+		{D72B16F9-A16F-41CE-AC63-50BD32728D17}.Debug|x64.ActiveCfg = Debug|x64
+		{D72B16F9-A16F-41CE-AC63-50BD32728D17}.Debug|x64.Build.0 = Debug|x64
+		{D72B16F9-A16F-41CE-AC63-50BD32728D17}.Debug|x86.ActiveCfg = Debug|x64
+		{D72B16F9-A16F-41CE-AC63-50BD32728D17}.Debug|x86.Build.0 = Debug|x64
+		{D72B16F9-A16F-41CE-AC63-50BD32728D17}.Release|x64.ActiveCfg = Release|x64
+		{D72B16F9-A16F-41CE-AC63-50BD32728D17}.Release|x64.Build.0 = Release|x64
+		{D72B16F9-A16F-41CE-AC63-50BD32728D17}.Release|x86.ActiveCfg = Release|x64
+		{D72B16F9-A16F-41CE-AC63-50BD32728D17}.Release|x86.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

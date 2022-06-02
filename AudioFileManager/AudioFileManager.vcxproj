@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{147DF00B-977B-4E10-B1B3-7E671088FEEC}</ProjectGuid>
+    <ProjectGuid>{D72B16F9-A16F-41CE-AC63-50BD32728D17}</ProjectGuid>
     <Keyword>QtVS_v304</Keyword>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0.22000.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0.22000.0</WindowsTargetPlatformVersion>
@@ -32,12 +32,12 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>5.12.3_msvc2017_64</QtInstall>
-    <QtModules>core;gui;svg;widgets</QtModules>
+    <QtModules>core</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
     <QtInstall>5.12.3_msvc2017_64</QtInstall>
-    <QtModules>core;gui;svg;widgets</QtModules>
+    <QtModules>core</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
@@ -58,24 +58,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Link>
-      <AdditionalDependencies>lua54.lib;avcodec.lib;avformat.lib;avdevice.lib;avfilter.lib;avutil.lib;swresample.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../lib</AdditionalLibraryDirectories>
-    </Link>
-    <ClCompile>
-      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Link>
-      <AdditionalDependencies>lua54.lib;avcodec.lib;avformat.lib;avdevice.lib;avfilter.lib;avutil.lib;swresample.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../lib</AdditionalLibraryDirectories>
-    </Link>
-    <ClCompile>
-      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
@@ -98,49 +80,16 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AudioFileManager.cpp" />
-    <ClCompile Include="BAlbumSlider.cpp" />
-    <ClCompile Include="BPrettyButton.cpp" />
-    <ClCompile Include="BPushButton.cpp" />
-    <ClCompile Include="Controller.cpp" />
-    <ClCompile Include="FIFOBuffer.c" />
-    <ClCompile Include="List.c" />
-    <ClCompile Include="Node.c" />
-    <ClCompile Include="Player.cpp" />
-    <QtRcc Include="BricMusic.qrc" />
-    <QtMoc Include="BricMusic.h" />
-    <ClCompile Include="BricMusic.cpp" />
-    <ClCompile Include="Decoder.cpp" />
-    <ClCompile Include="FIFO.cpp" />
-    <ClCompile Include="List_cstr.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="resource.h" />
-    <QtMoc Include="Decoder.h" />
-    <QtMoc Include="Controller.h" />
-    <QtMoc Include="BPushButton.h" />
-    <QtMoc Include="BPrettyButton.h" />
-    <QtMoc Include="BAlbumSlider.h" />
     <QtMoc Include="AudioFileManager.h" />
-    <ClInclude Include="FIFO.h" />
-    <ClInclude Include="FIFOBuffer.h" />
-    <ClInclude Include="List.h" />
-    <ClInclude Include="List_cstr.h" />
-    <ClInclude Include="Node.h" />
-    <ClInclude Include="pubdefs.h" />
-    <QtMoc Include="Player.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="BricMusic.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="img\BM-LOGO\icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

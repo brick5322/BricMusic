@@ -105,11 +105,11 @@ void Controller::on_player_paused()
 	if (is_pos_changing)
 	{
 		is_pos_changing = false;
-		return setPlaying();
+		return emit setPlaying();
 	}
 	is_paused = true;
 	if (!is_finishing)
-		return paused();
+		return emit paused();
 	is_finishing = false;
 #ifdef _DEBUG
 	qDebug() << QTime::currentTime()<<"emit playTaskFinish";
