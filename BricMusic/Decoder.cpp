@@ -120,7 +120,10 @@ int Decoder::open(const char* filepath)
 #ifdef _DEBUG
 	qDebug() << QTime::currentTime() << "emit basicInfo";
 #endif
-	emit basicInfo(sampleFormat, channel_layout, sample_rate, (double)(stream->duration - stream->start_time) * stream->time_base.num / stream->time_base.den);
+	if(stream->start_time && stream->start_time != AV_NOPTS_VALUE)
+		emit basicInfo(sampleFormat, channel_layout, sample_rate, (double)(stream->duration - stream->start_time) * stream->time_base.num / stream->time_base.den);
+	else
+		emit basicInfo(sampleFormat, channel_layout, sample_rate, (double)(stream->duration) * stream->time_base.num / stream->time_base.den);
 	return err;
 }
 

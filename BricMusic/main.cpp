@@ -5,6 +5,7 @@
 #include <QMenu>
 #include <QString>
 #include <QFile>
+#include <QDir>
 #include "Decoder.h"
 #include "Player.h"
 #include "Controller.h"
@@ -100,8 +101,7 @@ int main(int argc, char *argv[])
     QAction Exit;
     Exit.setText(QString::fromLocal8Bit("ÍË³ö"));
 	menu.addAction(&Exit);
-
-	QFile file(QString("./qss/menu.qss"));
+	QFile file(QString("%1/qss/menu.qss").arg(QDir::currentPath()));
 	file.open(QFile::ReadOnly);
 	menu.setStyleSheet(file.readAll());
 	file.close();
