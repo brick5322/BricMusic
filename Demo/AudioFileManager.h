@@ -12,7 +12,7 @@ public:
 	~AudioFileManager(); 
 
 public slots:
-	void findNextAudio(const char*& path, Controller::PlayBackMode mode);
+	void findNextAudio(const char*& path, int mode);
 	//void findPrevAudio(const char*& path,Controller::PlayBackMode mode);
 private:
 	List_cstr filepaths;

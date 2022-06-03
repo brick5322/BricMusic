@@ -82,6 +82,5 @@ int main(int argc, char* argv[])
 	QObject::connect(&ctrler, &Controller::menuEmpty, &a, &QCoreApplication::quit);
 	ctrler.setMode(Controller::loop);
 	ctrler.playTaskInit();
-
 	return a.exec();
 }

@@ -4,13 +4,15 @@
 #include <QFocusEvent>
 #include <QIcon>
 
-BricMusic::BricMusic(const QColor& color, const char* firstAudioPath ,QWidget* parent)
-	: QWidget(parent),ctrler(firstAudioPath ,parent),
+BricMusic::BricMusic(const QColor& color, QWidget* parent)
+	: QWidget(parent),
 	vol_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
 	hide_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
 	prev_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
 	next_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
 	mode_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
+	ani(nullptr),
+	albumslider(new BAlbumSlider(BAlbumSlider::loadSVG(":/img/handle-press.tsvg", 20, 20, QColor("#E8E8E8")), BAlbumSlider::loadSVG(":/img/handle-press.tsvg", 20, 20, color), 50, 500, this)),
 	btns_hidden(true),is_lrc_on(false),is_vol_on(true),is_playing(true), ani_current_btn(-1),
 	mode(Controller::loopPlayBack),vol(127)
 {
@@ -20,7 +22,6 @@ BricMusic::BricMusic(const QColor& color, const char* firstAudioPath ,QWidget* p
 	btns[3] = &mode_btn;
 	btns[4] = &next_btn;
 
-	albumslider = new BAlbumSlider(BAlbumSlider::loadSVG(":/img/handle-press.tsvg", 20, 20, QColor("#E8E8E8")), BAlbumSlider::loadSVG(":/img/handle-press.tsvg", 20, 20, color), 50, 500, this);
 	albumslider->move(100, 100);
 	albumslider->setFrontPen(color, 3);
 	albumslider->setBackPen(Qt::white, 3);
@@ -28,6 +29,7 @@ BricMusic::BricMusic(const QColor& color, const char* firstAudioPath ,QWidget* p
 	albumslider->installEventFilter(this);
 
 	setAttribute(Qt::WA_TranslucentBackground);
+	setAttribute(Qt::WA_QuitOnClose);
 	setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Tool);
 	setFocusPolicy(Qt::StrongFocus);
 	setWindowIcon(QIcon(":/img/icon.png"));
@@ -73,7 +75,6 @@ BricMusic::BricMusic(const QColor& color, const char* firstAudioPath ,QWidget* p
 
 	QObject::connect(&ctrler, &Controller::playTaskReady, this, &BricMusic::on_playtask_ready);
 	QObject::connect(&ctrler, &Controller::playTaskFinished, this, &BricMusic::on_playtask_finished);
-	QObject::connect(&ctrler, &Controller::menuEmpty, this, &BricMusic::close);
 
 	QObject::connect(albumslider, &BAlbumSlider::sliderMoved, &ctrler, &Controller::posChange);
 }
@@ -145,7 +146,6 @@ void BricMusic::wheelEvent(QWheelEvent* e)
 void BricMusic::closeEvent(QCloseEvent* e)
 {
 	emit ctrler.stopDecoder();
-	ctrler.stop();
 	e->accept();
 }
 

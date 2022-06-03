@@ -20,11 +20,10 @@ class Controller : public QObject
 public:
 	static constexpr size_t SDL_buffersz = 1024;
 	static constexpr size_t AudioLevel = 64;
-	enum PlayBackMode { loop, loopPlayBack, singleTune, randomTune,prev = 0x10000000 };
-	Controller(const char* path = nullptr,QObject *parent = Q_NULLPTR);
+	enum PlayBackMode { loop, loopPlayBack, singleTune, randomTune,prev = 0x80000000 };
+	Controller(QObject *parent = Q_NULLPTR);
 	~Controller();
 	SDL_mutex* mutex();
-	void flush_playtask();
 	bool isFinishing();
 signals:
 	void getData(FIFO&);
@@ -32,14 +31,13 @@ signals:
 	void playTaskReady();
 	void playTaskFinished();
 	void timestampChanged(int timestamp);
-	void getAudioPath(const char*&, int);
+	void getAudioPath(int);
 	void setDecode(const char*);
 	void flushDecoder(unsigned int timestamp);
 	void stopDecoder();
 	void setPausing();
 	void setPlaying();
 	void setDuration(int duration);
-	void menuEmpty();
 	void paused();
 public slots:
 	void playTaskInit();
@@ -63,7 +61,6 @@ private:
 	int audioTimestamps;
 	int playTimestamp;
 	PlayBackMode mode;
-	const char* audiopath;
 	bool is_finishing;
 	bool is_pausing;
 	bool is_paused;

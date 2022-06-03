@@ -13,7 +13,7 @@ AudioFileManager::AudioFileManager(int argc,char** argv, QObject* parent)
 		filepaths.add(argv[i]);
 }
 
-void AudioFileManager::findNextAudio(const char*& path, Controller::PlayBackMode mode)
+void AudioFileManager::findNextAudio(const char*& path, int mode)
 {
 	const char* i = nullptr;
 	switch (mode)

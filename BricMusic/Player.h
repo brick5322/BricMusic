@@ -25,6 +25,7 @@ signals:
 	void playReady();
 public:
 	Player(Controller* parent = Q_NULLPTR);
+	~Player(){}
 	static constexpr int SDL_buffersz = 1024;
 	static void Player_Callback(Player* plr, Uint8* stream, int len);
 private:

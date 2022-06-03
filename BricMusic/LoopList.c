@@ -69,7 +69,7 @@ Node* LoopList_get(LoopList* lst, int pos_at)
     }
     else
     {
-        lst->latestPos = lst-> length-(pos_at % lst->length);
+        lst->latestPos = lst-> length+(pos_at % lst->length);
         for (int i = 0; i < -pos_at; i++)
             lst->latest = lst->latest->prev;
     }

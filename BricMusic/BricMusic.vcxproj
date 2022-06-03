@@ -103,24 +103,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\AudioFileManager\list_DNode.c" />
+    <ClCompile Include="..\AudioFileManager\LoopList.c" />
     <ClCompile Include="AudioFileManager.cpp" />
     <ClCompile Include="BAlbumSlider.cpp" />
     <ClCompile Include="BPrettyButton.cpp" />
     <ClCompile Include="BPushButton.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="FIFOBuffer.c" />
-    <ClCompile Include="List.c" />
-    <ClCompile Include="Node.c" />
     <ClCompile Include="Player.cpp" />
     <QtRcc Include="BricMusic.qrc" />
     <QtMoc Include="BricMusic.h" />
     <ClCompile Include="BricMusic.cpp" />
     <ClCompile Include="Decoder.cpp" />
     <ClCompile Include="FIFO.cpp" />
-    <ClCompile Include="List_cstr.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\AudioFileManager\list_DNode.h" />
+    <ClInclude Include="..\AudioFileManager\LoopList.h" />
     <ClInclude Include="resource.h" />
     <QtMoc Include="Decoder.h" />
     <QtMoc Include="Controller.h" />
@@ -130,9 +131,6 @@
     <QtMoc Include="AudioFileManager.h" />
     <ClInclude Include="FIFO.h" />
     <ClInclude Include="FIFOBuffer.h" />
-    <ClInclude Include="List.h" />
-    <ClInclude Include="List_cstr.h" />
-    <ClInclude Include="Node.h" />
     <ClInclude Include="pubdefs.h" />
     <QtMoc Include="Player.h" />
   </ItemGroup>

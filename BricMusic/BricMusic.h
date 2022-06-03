@@ -12,7 +12,8 @@ class BricMusic : public QWidget
     Q_OBJECT
 
 public:
-    BricMusic(const QColor& color,const char* firstAudioPath = nullptr,QWidget *parent = Q_NULLPTR);
+    BricMusic(const QColor& color,QWidget *parent = Q_NULLPTR);
+    ~BricMusic() {}
     Controller& controller();
 protected:
     bool eventFilter(QObject* obj, QEvent*);

@@ -43,19 +43,10 @@
     <ClCompile Include="FIFO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="List_cstr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FIFOBuffer.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="List.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Node.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AudioFileManager.cpp">
@@ -73,6 +64,12 @@
     <ClCompile Include="Controller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\AudioFileManager\list_DNode.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AudioFileManager\LoopList.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FIFO.h">
@@ -81,19 +78,16 @@
     <ClInclude Include="FIFOBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="List.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="List_cstr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Node.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="pubdefs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\AudioFileManager\list_DNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\AudioFileManager\LoopList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

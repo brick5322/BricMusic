@@ -8,4 +8,7 @@ message("You are running qmake on a generated .pro file. This may not work!")
 
 
 TEMPLATE = subdirs
-SUBDIRS += GUI/GUI.pro
+SUBDIRS += Demo/Demo.pro \
+    GUI/GUI.pro \
+    BricMusic/BricMusic.pro \
+    AudioFileManager/AudioFileManager.pro

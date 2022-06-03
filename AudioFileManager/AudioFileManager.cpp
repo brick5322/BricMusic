@@ -13,6 +13,8 @@ extern "C"
 #include <unistd.h>
 #include <sys/types.h>
 #include <signal.h>
+#include "AudioFileManager.h"
+#include "AudioFileManager.h"
 #endif // _WIN32
 
 const QString& AudioFileManager::sharedMemoryKey = QString("BricMusicSharedMemoryKey");
@@ -21,8 +23,8 @@ AudioFileManager::AudioFileManager(int nb_filepaths, char** filepaths)
 	: QSharedMemory(sharedMemoryKey,nullptr),thr(nullptr),timerID(0),list(LoopList_alloc(0))
 {
 	LoopList_set_Destructor(list, 0, free);
-	for (current_fp_pos = 0; current_fp_pos < nb_filepaths; current_fp_pos++)
-		addAudioPath(filepaths[current_fp_pos]);
+	for (size_t i = 0; i < nb_filepaths; i++)
+		Init(filepaths[i]);
 }
 
 bool AudioFileManager::AudioFileManagerCreate()
@@ -162,5 +164,7 @@ void AudioFileManager::addAudioPath(const char* path)
 	Node_getData(char*, node) = cp_path;
 }
 
-
-
+void AudioFileManager::Init(const char* filepath)
+{
+	addAudioPath(filepaths[current_fp_pos++]);
+}
