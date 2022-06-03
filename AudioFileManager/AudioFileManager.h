@@ -4,6 +4,10 @@
 #include <QSharedMemory>
 #include <QThread>
 #include <QTimer>
+extern"C"
+{
+#include "LoopList.h"
+}
 
 class AudioFileManager : public QSharedMemory
 {
@@ -16,10 +20,10 @@ public:
 	~AudioFileManager(); 
 
 	bool AudioFileManagerCreate();
-	const char* findFirstAudio();
+	const char* findFirstAudio();// @todo
 public slots:
-    void findNextAudio(const char*& path, int mode);
-    void addAudioPath(const char* path);
+    void findNextAudio(const char*& path, int mode);// @todo
+    void addAudioPath(const char* path);// @todo
 private slots:
     void on_server_timeout();
     void on_client_timeout();
@@ -32,7 +36,10 @@ private:
 	int timerID;
 	int interval;
 
+	LoopList* list;
+
 	char** filepaths;
 	int nb_filepaths;
 	int current_fp_pos;
+
 };

@@ -4,7 +4,7 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    AudioFileManager manager(argc,argv);
+    AudioFileManager manager(argc - 1, argv+1);
     if(manager.AudioFileManagerCreate())
         printf("Hello World!\n");
     else

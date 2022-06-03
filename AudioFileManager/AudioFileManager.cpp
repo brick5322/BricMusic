@@ -2,6 +2,10 @@
 #include <QTimerEvent>
 #include <QtWidgets/QApplication>
 #include <QDebug>
+extern "C"
+{
+#include "list_DNode.h"
+}
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -14,13 +18,11 @@
 const QString& AudioFileManager::sharedMemoryKey = QString("BricMusicSharedMemoryKey");
 
 AudioFileManager::AudioFileManager(int nb_filepaths, char** filepaths)
-	: QSharedMemory(sharedMemoryKey,nullptr),thr(nullptr),timerID(0)
+	: QSharedMemory(sharedMemoryKey,nullptr),thr(nullptr),timerID(0),list(LoopList_alloc(0))
 {
-	this->filepaths = filepaths;
-	this->nb_filepaths = nb_filepaths;
-	this->current_fp_pos = 0;
-	for (int i = 0; i < nb_filepaths; i++)
-		addAudioPath(filepaths[i]);
+	LoopList_set_Destructor(list, 0, free);
+	for (current_fp_pos = 0; current_fp_pos < nb_filepaths; current_fp_pos++)
+		addAudioPath(filepaths[current_fp_pos]);
 }
 
 bool AudioFileManager::AudioFileManagerCreate()
@@ -39,6 +41,8 @@ bool AudioFileManager::AudioFileManagerCreate()
 	}
 	else if (attach())
 	{
+		list->latest = list->first;
+		list->latestPos = 0;
 		QObject::connect(&timer, &QTimer::timeout, this, &AudioFileManager::on_client_timeout);
 		timer.start();
 	}
@@ -59,12 +63,27 @@ AudioFileManager::~AudioFileManager()
 
 void AudioFileManager::findNextAudio(const char*& path, int mode)
 {
-
+	if(mode<0)
+		path = Node_getData(char*, LoopList_get(list, --current_fp_pos));
+	else
+	switch (mode)
+	{
+	case 1:
+		path = Node_getData(char*, LoopList_get(list,++current_fp_pos));
+	case 2:
+		path = Node_getData(char*, LoopList_get(list, current_fp_pos));
+	case 3:
+		srand(time(0));
+		path = Node_getData(char*, LoopList_get(list, current_fp_pos = rand() % list->length));
+	default:
+		break;
+	}
 }
 
 const char* AudioFileManager::findFirstAudio()
 {
-	return NULL;
+	current_fp_pos = 0;
+	return Node_getData(char*,LoopList_get(list,0));
 }
 
 void AudioFileManager::on_server_timeout()
@@ -91,9 +110,14 @@ void AudioFileManager::on_server_timeout()
 
 	lock();
 	qint64 current_pid = *(qint64*)data();
-	addAudioPath((char*)data() + sizeof(qint64));
 	if (latest_pid != current_pid)
+	{
+		LoopList_get(list, --current_fp_pos);
+		addAudioPath((char*)data() + sizeof(qint64));
 		emit newProcesstask();
+	}
+	else
+		addAudioPath((char*)data() + sizeof(qint64));
 	latest_pid = current_pid;
 	*(qint64*)data() = 0;
 	unlock();
@@ -112,27 +136,30 @@ void AudioFileManager::on_client_timeout()
         return;
     }
 	lock();
-	if (current_fp_pos < nb_filepaths)
-	{
+
 #ifdef _WIN32
-		* (qint64*)data() = (qint64)GetCurrentProcessId();
+	* (qint64*)data() = (qint64)GetCurrentProcessId();
 #elif defined(__linux__)
-		* (qint64*)data() = (qint64)getpid();
+	* (qint64*)data() = (qint64)getpid();
 #endif // _WIN32
-		strcpy((char*)data() + sizeof(qint64), filepaths[current_fp_pos++]);
-		unlock();
-	}
-	else
+	strcpy((char*)data() + sizeof(qint64), Node_getData(char*, list->latest));
+	list->latest = list->latest->next;
+	if (list->latest == list->first)
 	{
-		unlock();
 		emit sendFinished();
+		unlock();
 		timer.stop();
 	}
+	else
+		unlock();
 }
 
 void AudioFileManager::addAudioPath(const char* path)
 {
-    qDebug()<<path;
+	list_DNode* node = LoopList_add(list, 0, sizeof(char*));
+	char* cp_path = new char[strlen(path) + 1];
+	strcpy(cp_path,path);
+	Node_getData(char*, node) = cp_path;
 }
 
 
