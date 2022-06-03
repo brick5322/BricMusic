@@ -137,7 +137,7 @@ void Decoder::close()
 
 void Decoder::flush(unsigned int timeStamp)
 {
-	av_seek_frame(fmt, stream->index, (int64_t)timeStamp, AVSEEK_FLAG_FRAME);
+	av_seek_frame(fmt, stream->index, (int64_t)timeStamp/stream->time_base.num* stream->time_base.den/sample_rate, AVSEEK_FLAG_FRAME);
 }
 
 void Decoder::decode(FIFO& buffer) {
