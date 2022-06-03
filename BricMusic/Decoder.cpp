@@ -37,6 +37,8 @@ Decoder::~Decoder()
 
 int Decoder::open(const char* filepath)
 {
+	if (!filepath)
+		return 0;
 	int err = 0;
 #ifdef _DEBUG
 	qDebug() << filepath;

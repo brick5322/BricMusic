@@ -89,7 +89,7 @@ void Player::terminate(){
 #endif
 	SDL_PauseAudio(true);
 	pausing = false;
-	emit paused();
+	emit terminated();
 }
 
 void Player::close()

@@ -21,7 +21,7 @@ public slots:
 	void resetContext(SDL_AudioSpec& context);
 signals:
 	void getData(unsigned char* buffer,int len);
-	void paused();
+	void terminated();
 	void playReady();
 public:
 	Player(Controller* parent = Q_NULLPTR);

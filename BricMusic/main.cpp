@@ -115,13 +115,13 @@ int main(int argc, char *argv[])
 
 	QObject::connect(&w, &BricMusic::setVolume, &player, &Player::setVolume);
     QObject::connect(&manager, &AudioFileManager::newProcesstask, &ctrler, &Controller::getNextAudio);
-    QObject::connect(&manager, &AudioFileManager::getPath, &decoder, &Decoder::open);
+    QObject::connect(&manager, &AudioFileManager::getPath, &ctrler, &Controller::setNextPath);
 
 	QObject::connect(&decoder, &Decoder::attachedPic, &w, &BricMusic::setPic);
-	QObject::connect(&decoder, &Decoder::deformatErr, &ctrler, &Controller::getNextAudio);
-	QObject::connect(&decoder, &Decoder::decodeErr, &ctrler, &Controller::getNextAudio);
+	QObject::connect(&decoder, &Decoder::deformatErr, &decoder, &Decoder::close);
+	QObject::connect(&decoder, &Decoder::decodeErr, &decoder, &Decoder::close);
 	QObject::connect(&decoder, &Decoder::basicInfo, &ctrler, &Controller::getContext);
-	QObject::connect(&decoder, &Decoder::decodeFinish, &ctrler, &Controller::stop);
+	QObject::connect(&decoder, &Decoder::decodeFinish, &ctrler, &Controller::playTaskStop);
 
 	QObject::connect(&ctrler, &Controller::setDecode, &decoder, &Decoder::open);
 	QObject::connect(&ctrler, &Controller::getData, &decoder, &Decoder::decode);
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
 	QObject::connect(&ctrler, &Controller::getAudioPath, &manager, &AudioFileManager::findNextAudio);
 
 	QObject::connect(&player, &Player::playReady, &ctrler, &Controller::playTaskReady);
-	QObject::connect(&player, &Player::paused, &ctrler, &Controller::on_player_paused);
+	QObject::connect(&player, &Player::terminated, &ctrler, &Controller::on_player_terminated);
     QObject::connect(&Exit, &QAction::triggered, &player,&Player::terminate);
     QObject::connect(&Exit, &QAction::triggered, &w,&BricMusic::close);
     QObject::connect(&Exit, &QAction::triggered, &a,&QApplication::quit);

@@ -7,10 +7,10 @@
 #include <QTime>
 #endif
 
-Controller::Controller(QObject *parent)
-	: QObject(parent),fifo(SDL_buffersz * AudioLevel * 2 *4,FIFO::StrictWrite|FIFO::ReadMostSz),
-	is_finishing(false),is_paused(false),is_pausing(false), is_pos_changing(false),
-	mtx(SDL_CreateMutex()),timerID(0),playTimestamp(0)
+Controller::Controller(QObject* parent)
+	: QObject(parent), fifo(SDL_buffersz* AudioLevel * 2 * 4, FIFO::StrictWrite | FIFO::ReadMostSz),
+	is_finishing(false), is_paused(false), is_pausing(false), is_pos_changing(false),current_mode(None),
+	mtx(SDL_CreateMutex()), timerID(0), playTimestamp(0), recentPath(nullptr)
 {
 }
 
@@ -89,12 +89,17 @@ void Controller::setData(unsigned char* buffer, int len)
 	SDL_UnlockMutex(mtx);
 }
 
+void Controller::setNextPath(const char* p)
+{
+	this->recentPath = p;
+}
+
 void Controller::setMode(PlayBackMode mode)
 {
 	this->mode = mode;
 }
 
-void Controller::on_player_paused()
+void Controller::on_player_terminated()
 {
 	is_pausing = false;
 	if (is_pos_changing)
@@ -127,16 +132,30 @@ void Controller::playTaskStart()
 	emit setPlaying();
 }
 
+void Controller::playTaskStop()
+{
+	if(current_mode)
+		emit getAudioPath(current_mode);
+	else
+		emit getAudioPath(mode&0x3fffffff);
+	current_mode = None;
+	if (!timerID)
+		return;
+	is_finishing = true;
+	emit setPausing();
+	killTimer(timerID);
+	timerID = 0;
+}
+
 void Controller::getNextAudio()
 {
-	emit getAudioPath(loopPlayBack);
+	current_mode = loopPlayBack;
 	emit stopDecoder();
-	is_finishing = false;
 }
 
 void Controller::getPrevAudio()
 {
-	emit getAudioPath(loopPlayBack |prev);
+	current_mode = loopPlayBack | prev;
 	emit stopDecoder();
 }
 
@@ -146,20 +165,10 @@ void Controller::start()
 	timerID = startTimer(10);
 }
 
-void Controller::stop()
-{
-	if (!timerID)
-		return;
-	is_finishing = true;
-	emit setPausing();
-	killTimer(timerID);
-	timerID = 0;
-}
-
 void Controller::playTaskInit()
 {
-	emit getAudioPath(mode);
-	emit stopDecoder();
+	if(recentPath)
+		emit setDecode(recentPath);
 }
 
 void Controller::timerEvent(QTimerEvent*)

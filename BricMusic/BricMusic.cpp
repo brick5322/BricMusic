@@ -147,7 +147,8 @@ void BricMusic::wheelEvent(QWheelEvent* e)
 
 void BricMusic::closeEvent(QCloseEvent* e)
 {
-	emit ctrler.stopDecoder();
+	ctrler.setMode(Controller::quit);
+	ctrler.playTaskStop();
 	e->accept();
 }
 
@@ -248,7 +249,7 @@ void BricMusic::on_playtask_ready()
 void BricMusic::on_playtask_finished()
 {
 	is_playing = false;
-	emit ctrler.playTaskInit();
+	ctrler.playTaskInit();
 }
 
 void BricMusic::on_ani_finished()

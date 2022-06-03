@@ -68,19 +68,24 @@ void AudioFileManager::findNextAudio(int mode)
 	else
 	switch (mode)
 	{
-	case 1:
+	case 2:
 		path = Node_getData(char*, LoopList_get(list,++current_fp_pos));
 		break;
-	case 2:
+	case 3:
 		path = Node_getData(char*, LoopList_get(list, current_fp_pos));
 		break;
-	case 3:
+	case 4:
 		srand(time(0));
 		path = Node_getData(char*, LoopList_get(list, current_fp_pos = rand() % list->length));
 		break;
 	default:
 		break;
 	}
+	current_fp_pos = current_fp_pos % list->length;
+#ifdef _DEBUG
+	qDebug() << QString::fromLocal8Bit("ÏÂÒ»Ê×:") << current_fp_pos << QString(path);
+#endif // _DEBUG
+
 	emit getPath(path);
 }
 
