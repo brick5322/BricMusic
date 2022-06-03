@@ -22,6 +22,8 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
 	btns[3] = &mode_btn;
 	btns[4] = &next_btn;
 
+	resize(275, 275);
+
 	albumslider->move(100, 100);
 	albumslider->setFrontPen(color, 3);
 	albumslider->setBackPen(Qt::white, 3);

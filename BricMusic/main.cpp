@@ -1,13 +1,15 @@
 #include "BricMusic.h"
 #include <QtWidgets/QApplication>
-#include "Decoder.h"
-#include "Player.h"
-#include "Controller.h"
-#include "AudioFileManager.h"
+#include <QDesktopWidget>
 #include <QSystemTrayIcon>
 #include <QMenu>
 #include <QString>
 #include <QFile>
+#include "Decoder.h"
+#include "Player.h"
+#include "Controller.h"
+#include "AudioFileManager.h"
+
 
 extern"C"
 {
@@ -116,7 +118,8 @@ int main(int argc, char *argv[])
     QObject::connect(&manager, &AudioFileManager::getPath, &decoder, &Decoder::open);
 
 	QObject::connect(&decoder, &Decoder::attachedPic, &w, &BricMusic::setPic);
-	QObject::connect(&decoder, &Decoder::decodeErr, &w, &BricMusic::close);
+	QObject::connect(&decoder, &Decoder::deformatErr, &ctrler, &Controller::getNextAudio);
+	QObject::connect(&decoder, &Decoder::decodeErr, &ctrler, &Controller::getNextAudio);
 	QObject::connect(&decoder, &Decoder::basicInfo, &ctrler, &Controller::getContext);
 	QObject::connect(&decoder, &Decoder::decodeFinish, &ctrler, &Controller::stop);
 
@@ -137,6 +140,8 @@ int main(int argc, char *argv[])
     QObject::connect(&Exit, &QAction::triggered, &a,&QApplication::quit);
 
     ctrler.setDecode(manager.findFirstAudio());
+    QRect s = QApplication::desktop()->screenGeometry();
+    w.move(s.width() - w.width(), s.height() - w.height());
 	w.show();
     return a.exec();
-}
+}   
