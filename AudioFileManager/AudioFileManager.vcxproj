@@ -85,7 +85,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AudioFileManager.cpp" />
+    <ClCompile Include="list_DNode.c" />
+    <ClCompile Include="LoopList.c" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="AudioFileManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="list_DNode.h" />
+    <ClInclude Include="LoopList.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
