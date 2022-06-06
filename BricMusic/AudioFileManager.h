@@ -21,7 +21,7 @@ public:
 	void Init(const char* filepath);
 
 	bool AudioFileManagerCreate();
-	const char* findFirstAudio();// @todo
+	QString findFirstAudio();// @todo
 public slots:
     void findNextAudio(int mode);// @todo
     void addAudioPath(const char* path);// @todo
@@ -30,7 +30,7 @@ private slots:
     void on_client_timeout();
 signals:
 	void newProcesstask();
-	void getPath(const char*);
+	void getPath(QString);
 	void sendFinished();
 private:
 	QThread* thr;

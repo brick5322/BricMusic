@@ -86,13 +86,13 @@ void AudioFileManager::findNextAudio(int mode)
 	qDebug() << QString::fromLocal8Bit("ÏÂÒ»Ê×:") << current_fp_pos << QString(path);
 #endif // _DEBUG
 
-	emit getPath(path);
+	emit getPath(QString(path));
 }
 
-const char* AudioFileManager::findFirstAudio()
+QString AudioFileManager::findFirstAudio()
 {
 	current_fp_pos = 0;
-	return Node_getData(char*,LoopList_get(list,0));
+	return QString(Node_getData(char*,LoopList_get(list,0)));
 }
 
 void AudioFileManager::on_server_timeout()

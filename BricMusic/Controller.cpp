@@ -10,8 +10,9 @@
 Controller::Controller(QObject* parent)
 	: QObject(parent), fifo(SDL_buffersz* AudioLevel * 2 * 4, FIFO::StrictWrite | FIFO::ReadMostSz),
 	is_finishing(false), is_paused(false), is_pausing(false), is_pos_changing(false),current_mode(None),
-	mtx(SDL_CreateMutex()), timerID(0), playTimestamp(0), recentPath(nullptr)
+	mtx(SDL_CreateMutex()), timerID(0), playTimestamp(0)
 {
+	recentPath.clear();
 }
 
 Controller::~Controller()
@@ -89,7 +90,7 @@ void Controller::setData(unsigned char* buffer, int len)
 	SDL_UnlockMutex(mtx);
 }
 
-void Controller::setNextPath(const char* p)
+void Controller::setNextPath(QString p)
 {
 	this->recentPath = p;
 }
@@ -167,7 +168,7 @@ void Controller::start()
 
 void Controller::playTaskInit()
 {
-	if(recentPath)
+	if(!recentPath.isEmpty())
 		emit setDecode(recentPath);
 }
 

@@ -35,7 +35,7 @@ signals:
 	void timestampChanged(int timestamp);
 	void getAudioPath(int);
 
-	void setDecode(const char*);
+	void setDecode(const QString&);
 	void flushDecoder(unsigned int timestamp);
 	void stopDecoder();
 
@@ -55,7 +55,7 @@ public slots:
 	void posChange(int timestamp);
 	void getContext(AVSampleFormat sampleFormat, int channel_layout, int sample_rate, double stream_duration);
 	void setData(unsigned char* buffer, int len);
-	void setNextPath(const char* p);
+	void setNextPath(QString);
 	void setMode(PlayBackMode mode);
 	void on_player_terminated();
 	void start();
@@ -75,5 +75,5 @@ private:
 	bool is_pausing;
 	bool is_paused;
 	bool is_pos_changing;
-	const char* recentPath;
+	QString recentPath;
 };
