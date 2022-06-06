@@ -10,11 +10,6 @@ FIFOBuffer* FIFOBuffer_alloc(int buffersz)
     FIFOBuffer* ret = malloc(sizeof(FIFOBuffer) + buffersz);
     if (!ret)
         return ret;
-#ifdef WIN32
-    InitializeCriticalSection(&ret->mutex);
-#else
-    pthread_mutex_init(&ret->mutex);
-#endif
     ret->size = buffersz;
     ret->refcount = 1;
     FIFOBuffer_reset(ret);
@@ -30,14 +25,6 @@ FIFOBuffer* FIFOBuffer_ref(FIFOBuffer* f)
 void FIFOBuffer_free(FIFOBuffer* f)
 {
     f->refcount--;
-    if (!f->refcount)
-    {
-#ifdef WIN32
-        DeleteCriticalSection(&f->mutex);
-#else
-        pthread_mutex_destroy(&f->mutex);
-#endif
-    }
 }
 
 void FIFOBuffer_write(FIFOBuffer* buf, const uint8_t* src, int len)
@@ -53,24 +40,6 @@ void FIFOBuffer_write(FIFOBuffer* buf, const uint8_t* src, int len)
             *(buf->writePos++) = *(src++);
     }
     buf->freesize -= len;
-}
-
-void FIFOBuffer_lock(FIFOBuffer* buf)
-{
-#ifdef WIN32
-    EnterCriticalSection(&buf->mutex);
-#else
-    pthread_mutex_lock(&buf->mutex);
-#endif
-}
-
-void FIFOBuffer_unlock(FIFOBuffer* buf)
-{
-#ifdef WIN32
-    LeaveCriticalSection(&buf->mutex);
-#else
-    pthread_mutex_unlock(&buf->mutex);
-#endif
 }
 
 int FIFOBuffer_read(FIFOBuffer* buf, uint8_t* dst, int maxlen)

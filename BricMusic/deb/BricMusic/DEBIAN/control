@@ -1,0 +1,9 @@
+Package: bricmusic
+Version: 2.0
+Architecture: amd64
+Section: utils
+Maintainer: Liu Fubaichuan <LiuFubaichuan@outlook.com>
+Priority: optional
+Depends: libqt5svg5, libqt5widgets5, libqt5gui5, libqt5core5a, libavformat58, libavcodec58, libavutil56, libswresample3, lua5.3, libsdl2-2.0-0
+Installed-Size: 341483
+Description: BricMusic is a simple music player.

@@ -1,0 +1,53 @@
+.TH BricMusic 6 "$Date: 2022/06/05 22:17:10 $"
+.SH NAME 
+BricMusic \- A Simple Music Player
+.SH SYNOPSIS
+.B BricMusic
+[
+.I args
+]
+.SH DESCRIPTION
+.B BricMusic
+is a cross-platform music player, which may disappoint you because it's so simple that it doesn't even have a playlist interface.The correct way to use it is to set it to the default music app and then click on the audio to play. Of course, if you want to make a default playlist, you may need to write a Lua script.You can also set other options in Lua scripts.The path of the Lua script is
+.I ~/.BricMusic/settings.lua.
+.PP
+Here is what you are going to write in the Lua script file
+.TP
+.B LanguagePath
+Set the language path by this, of course you can also replace 
+.I ~/.BricMusic/translations/default.qm
+to set it.
+.TP
+.B AudioPaths
+You can write your own logic in subsequent scripts to generate a default playlist that works for you.I've written a default list generation logic in there for your reference.
+.TP
+.B ThemeColor
+The default color
+.B #E799B0
+is
+.B Ms.Diana's
+supporting color
+.TP
+Subscribe Diana,Satisfied desire!
+Subscribe Diana(UID:672328094) on
+.I space.bilibili.com/672328094
+.PP
+Of course,you can set it to a different color, for reference below
+.RS
+.B #DB7D74
+for Ms.Bella
+.RE
+.RS
+.B #9AC8E2
+for Ms.Ava
+.RE
+.RS
+.B #576690
+for Ms.Eileen
+.RE
+.RS
+.B #B8A6D9
+for Ms.Carol
+.RE
+.SH AUTHORS
+Liu Fubaichuan <LiuFubaichuan@outlook.com>
