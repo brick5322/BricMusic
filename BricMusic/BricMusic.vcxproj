@@ -109,8 +109,6 @@
     <ClCompile Include="BPushButton.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="FIFOBuffer.c" />
-    <ClCompile Include="list_DNode.c" />
-    <ClCompile Include="LoopList.c" />
     <ClCompile Include="Player.cpp" />
     <QtRcc Include="BricMusic.qrc" />
     <QtMoc Include="BricMusic.h" />
@@ -120,8 +118,6 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="list_DNode.h" />
-    <ClInclude Include="LoopList.h" />
     <ClInclude Include="resource.h" />
     <QtMoc Include="Decoder.h" />
     <QtMoc Include="Controller.h" />

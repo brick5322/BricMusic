@@ -64,12 +64,6 @@
     <ClCompile Include="Controller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="list_DNode.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LoopList.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FIFO.h">
@@ -82,12 +76,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LoopList.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="list_DNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
