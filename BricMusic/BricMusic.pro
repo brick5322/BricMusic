@@ -4,8 +4,8 @@
 
 TEMPLATE = app
 TARGET = BricMusic
-DESTDIR = ../x64/Release
-CONFIG += release
+DESTDIR = ../x64/Debug
+CONFIG += debug console
 LIBS += -L"./../lib" \
     -L"$(NOINHERIT)" \
     -llua54 \
@@ -19,9 +19,11 @@ LIBS += -L"./../lib" \
     -lSDL2main
 DEPENDPATH += .
 MOC_DIR += .
-OBJECTS_DIR += release
+OBJECTS_DIR += debug
 UI_DIR += GeneratedFiles
 RCC_DIR += .
+TRANSLATIONS += zh_CN.ts \
+    en_US.ts
 win32:RC_FILE = BricMusic.rc
 HEADERS += ../AudioFileManager/list_DNode.h \
     ../AudioFileManager/LoopList.h \
@@ -50,4 +52,6 @@ SOURCES += ../AudioFileManager/list_DNode.c \
     ./Decoder.cpp \
     ./FIFO.cpp \
     ./main.cpp
+TRANSLATIONS += ./zh_CN.ts \
+    ./en_US.ts
 RESOURCES += BricMusic.qrc

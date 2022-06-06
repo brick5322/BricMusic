@@ -64,10 +64,10 @@
     <ClCompile Include="Controller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AudioFileManager\list_DNode.c">
+    <ClCompile Include="list_DNode.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AudioFileManager\LoopList.c">
+    <ClCompile Include="LoopList.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -84,10 +84,10 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\AudioFileManager\list_DNode.h">
+    <ClInclude Include="LoopList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\AudioFileManager\LoopList.h">
+    <ClInclude Include="list_DNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -123,5 +123,13 @@
     <Image Include="img\BM-LOGO\icon.ico">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <QtTranslation Include="zh_CN.ts">
+      <Filter>Translation Files</Filter>
+    </QtTranslation>
+    <QtTranslation Include="en_US.ts">
+      <Filter>Translation Files</Filter>
+    </QtTranslation>
   </ItemGroup>
 </Project>

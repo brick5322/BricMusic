@@ -1,7 +1,9 @@
 #include "BricMusic.h"
 #include <QtWidgets/QApplication>
 #include <QDesktopWidget>
+#include <QMessageBox>
 #include <QSystemTrayIcon>
+#include <QTranslator>
 #include <QMenu>
 #include <QString>
 #include <QFile>
@@ -18,8 +20,6 @@ extern"C"
 #include <lauxlib.h>
 #include <lua.h>
 }
-
-#define CONFIG_PATH "./settings.lua"
 
 QColor get_color(lua_State* L)
 {
@@ -48,21 +48,38 @@ QColor get_color(lua_State* L)
     return ret;
 }
 
-
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    QTranslator translator;
+#ifdef _WIN32
+    QString luaScriptPath = QCoreApplication::applicationDirPath() + QString("/settings.lua");
+    QString languagePath = QCoreApplication::applicationDirPath() + QString("/translations/default.qm");
+    QString qssPath = QCoreApplication::applicationDirPath() + QString("/qss/BricMusic.qss");
+#elif defined(__linux__)
+    QString luaScriptPath = QDir::homePath() + QString("/.BricMusic/settings.lua");
+    QString languagePath = QDir::homePath() + QString("/.BricMusic/translations/default.qm");
+    QString qssPath = QDir::homePath() + QString("/.BricMusic/qss/BricMusic.qss");
+#endif // _WIN32
+    
+    translator.load(languagePath);
+    a.installTranslator(&translator);
 
 	lua_State* Config = luaL_newstate();
     luaL_openlibs(Config);
-    luaL_dofile(Config, CONFIG_PATH);
-
-    QColor color = get_color(Config);
-
+    if (luaL_dofile(Config, luaScriptPath.toStdString().c_str()))
+    {
+        QMessageBox::critical(nullptr,
+            QMessageBox::tr("Lua File Err!"),
+            QMessageBox::tr("You might have a Lua script with an error or you might even have deleted the script.\nAnyway,see Readme.md(Windows) or try \"man BricMusic\"(Linux) to find solution."), QMessageBox::Cancel);
+        return 0;
+    }
 
     AudioFileManager manager(argc-1, argv+1);
     if (!manager.AudioFileManagerCreate())
     {
+        if (argc == 1)
+            return 0;
         QObject::connect(&manager, &AudioFileManager::sendFinished, &a, &QCoreApplication::quit);
         return a.exec();
     }
@@ -73,9 +90,9 @@ int main(int argc, char *argv[])
             lua_close(Config);
             return 0;
         }
-        int i = 1;
+        int i = 0;
         while(true) {
-            lua_pushnumber(Config, i++);
+            lua_pushnumber(Config, ++i);
             if (lua_gettable(Config, -2) != LUA_TSTRING)
                 break;
             else
@@ -84,9 +101,24 @@ int main(int argc, char *argv[])
                 lua_pop(Config, 1);
             }
         }
-        //Lua¼ÓÔØ
+        if (i == 1)
+        {
+            QMessageBox::critical(nullptr,
+                QMessageBox::tr("Load Err!"),
+                QMessageBox::tr("You load NOTHING!!!!\nAnyway,see Readme.md(Windows) or try \"man BricMusic\"(Linux) to find solution."), QMessageBox::Cancel);
+            return 0;
+        }
     }
+    QColor color = get_color(Config);
+    if (lua_getglobal(Config, "LanguagePath") == LUA_TSTRING)
+    {
+        translator.load(lua_tostring(Config, -1));
+        lua_pop(Config, 1);
+        a.installTranslator(&translator);
+    }
+
     lua_close(Config);
+
 	BricMusic w(color);
     QSystemTrayIcon icon(&w);
 
@@ -97,11 +129,15 @@ int main(int argc, char *argv[])
 	icon.setToolTip(QString("BricMusic"));
 	icon.setIcon(QIcon(":/img/BM-LOGO/icon16.png"));
 	icon.show();
+
     QMenu menu;
+    QAction Show;
     QAction Exit;
-    Exit.setText(QString::fromLocal8Bit("ÍË³ö"));
-	menu.addAction(&Exit);
-	QFile file(QString("%1/qss/menu.qss").arg(QDir::currentPath()));
+    Show.setText(QAction::tr("Show"));
+    Exit.setText(QAction::tr("Exit"));
+    menu.addAction(&Show);
+    menu.addAction(&Exit);
+	QFile file(qssPath);
 	file.open(QFile::ReadOnly);
 	menu.setStyleSheet(file.readAll());
 	file.close();
@@ -137,6 +173,7 @@ int main(int argc, char *argv[])
 	QObject::connect(&player, &Player::terminated, &ctrler, &Controller::on_player_terminated);
     QObject::connect(&Exit, &QAction::triggered, &player,&Player::terminate);
     QObject::connect(&Exit, &QAction::triggered, &w,&BricMusic::close);
+    QObject::connect(&Show, &QAction::triggered, &w,&BricMusic::show);
     QObject::connect(&Exit, &QAction::triggered, &a,&QApplication::quit);
 
     ctrler.setDecode(manager.findFirstAudio());
