@@ -14,6 +14,10 @@
 #include "AudioFileManager.h"
 #include "ArgSplitter.h"
 
+#ifdef _DEBUG
+#include <QDebug>
+#endif // _DEBUG
+
 
 extern"C"
 {
@@ -62,25 +66,32 @@ int main(int argc, char *argv[])
     QString languagePath = QDir::homePath() + QString("/.BricMusic/translations/default.qm");
     QString qssPath = QDir::homePath() + QString("/.BricMusic/qss/BricMusic.qss");
 #endif // _WIN32
-    
+#ifdef _DEBUG
+    qDebug() << luaScriptPath.toLocal8Bit().data();
+    qDebug() << languagePath;
+    qDebug() << qssPath;
+#endif
     translator.load(languagePath);
     a.installTranslator(&translator);
-
 	lua_State* Config = luaL_newstate();
     luaL_openlibs(Config);
-    if (luaL_dofile(Config, luaScriptPath.toStdString().c_str()))
+    if (luaL_dofile(Config, luaScriptPath.toLocal8Bit().data()))
     {
         QMessageBox::critical(nullptr,
             QMessageBox::tr("Lua File Err!"),
             QMessageBox::tr("You might have a Lua script with an error or you might even have deleted the script.\nAnyway,see Readme.md(Windows) or try \"man BricMusic\"(Linux) to find solution."), QMessageBox::Cancel);
         return 0;
     }
-
+#ifdef _DEBUG
+    qDebug() << "setSpliter";
+#endif // _DEBUG
     ArgSplitter splitter(argc, argv);
     splitter.setLongOptions(3, "pause", "prev", "next");
     splitter.parase();
     int len = splitter.argc();
-
+#ifdef _DEBUG
+    qDebug() << "Spliter setted"<<len;
+#endif // _DEBUG
     AudioFileManager manager(splitter.argc(),splitter.argv());
 
     AudioFileManager::InputOption opt = AudioFileManager::Default;
@@ -91,9 +102,14 @@ int main(int argc, char *argv[])
         opt = AudioFileManager::Prev;
     else if (splitter.hasLongOption(2))
         opt = AudioFileManager::Next;
+#ifdef _DEBUG
+    qDebug() << "load_options" << opt;
+#endif // _DEBUG
 
     if (!manager.AudioFileManagerCreate(opt))
     {
+        if (opt != AudioFileManager::Default)
+            return 0;
         if (argc == 1)
             return 0;
         QObject::connect(&manager, &AudioFileManager::sendFinished, &a, &QCoreApplication::quit);
@@ -102,19 +118,19 @@ int main(int argc, char *argv[])
     else if(!manager.size())
     {
         if (lua_getglobal(Config, "AudioPaths") != LUA_TTABLE)
-        {
             lua_close(Config);
-            return 0;
-        }
-        int i = 0;
-        while(true) {
-            lua_pushnumber(Config, ++i);
-            if (lua_gettable(Config, -2) != LUA_TSTRING)
-                break;
-            else
-            {
-                manager.Init(lua_tostring(Config, -1));
-                lua_pop(Config, 1);
+        else
+        {
+            int i = 0;
+            while (true) {
+                lua_pushnumber(Config, ++i);
+                if (lua_gettable(Config, -2) != LUA_TSTRING)
+                    break;
+                else
+                {
+                    manager.Init(lua_tostring(Config, -1));
+                    lua_pop(Config, 1);
+                }
             }
         }
     }

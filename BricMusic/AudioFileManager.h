@@ -15,16 +15,16 @@ class AudioFileManager : public QSharedMemory
 
     static const QString& sharedMemoryKey;
     static constexpr size_t sharedMemorySize = 4096;
-	bool insert(int i, const QString& str);
-	bool append(const QString& str);
+	bool insert(int i, const QByteArray& str);
+	bool append(const QByteArray& str);
 public:
 	enum InputOption { Default, Pause, Prev, Next };
 	AudioFileManager(int nb_filepaths, char** filepaths);
 	~AudioFileManager(); 
-	void Init(const QString& filepath);
+	void Init(const QByteArray& filepath);
 	inline int size() { return lPaths.size(); }
 	bool AudioFileManagerCreate(InputOption);
-	QString findFirstAudio();// @todo
+	QByteArray findFirstAudio();// @todo
 public slots:
     void findNextAudio(int mode);// @todo
 private slots:
@@ -36,7 +36,7 @@ signals:
 	void processSetPrev();
 	void processSetNext();
 
-	void getPath(QString);
+	void getPath(QByteArray);
 	void sendFinished();
 private:
 	QMutex mtx;
@@ -44,9 +44,9 @@ private:
 	QTimer timer;
 	int timerID;
 	int interval;
-	QString path;
-	QSet<QString> sPaths;
-	QList<QString> lPaths;
+	QByteArray path;
+	QSet<QByteArray> sPaths;
+	QList<QByteArray> lPaths;
 	int current_fp_pos;
 
 };

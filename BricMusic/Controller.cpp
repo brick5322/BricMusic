@@ -90,7 +90,7 @@ void Controller::setData(unsigned char* buffer, int len)
 	SDL_UnlockMutex(mtx);
 }
 
-void Controller::setNextPath(QString p)
+void Controller::setNextPath(QByteArray p)
 {
 	this->recentPath = p;
 }

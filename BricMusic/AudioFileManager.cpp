@@ -88,7 +88,6 @@ bool AudioFileManager::AudioFileManagerCreate(InputOption opt)
 			((qint64*)data())[0] = 1;
 			((qint64*)data())[1] = opt;
 			unlock();
-			emit sendFinished();
 		}
 	}
 	return false;
@@ -105,7 +104,7 @@ AudioFileManager::~AudioFileManager()
 	}
 }
 
-bool AudioFileManager::insert(int i, const QString& str)
+bool AudioFileManager::insert(int i, const QByteArray& str)
 {
 	if (sPaths.contains(str))
 		return false;
@@ -117,18 +116,25 @@ bool AudioFileManager::insert(int i, const QString& str)
 	}
 }
 
-bool AudioFileManager::append(const QString& str)
+bool AudioFileManager::append(const QByteArray& str)
 {
+#ifdef _DEBUG
+	qDebug() << "try to append" << str;
+#endif // _DEBUG
+
 	AVFormatContext* ctx = nullptr;
 	if (sPaths.contains(str))
 		return false;
-	else if (avformat_open_input(&ctx, str.toStdString().c_str(), NULL, NULL))
+	else if (avformat_open_input(&ctx, str.data(), NULL, NULL))
 		return false;
 	else
 	{
 		avformat_close_input(&ctx);
 		sPaths.insert(str);
 		lPaths.append(str);
+#ifdef _DEBUG
+		qDebug() << "append" << str;
+#endif // _DEBUG
 		return true;
 	}
 }
@@ -154,6 +160,7 @@ void AudioFileManager::findNextAudio(int mode)
 	default:
 		break;
 	}
+	current_fp_pos += lPaths.size();
 	current_fp_pos %= lPaths.size();
 	emit getPath(path = lPaths[current_fp_pos]);
 #ifdef _DEBUG
@@ -164,7 +171,7 @@ unl_ret:
 
 }
 
-QString AudioFileManager::findFirstAudio()
+QByteArray AudioFileManager::findFirstAudio()
 {
 	current_fp_pos = 0;
 	return lPaths[current_fp_pos];
@@ -193,20 +200,27 @@ void AudioFileManager::on_server_timeout()
 		switch (((qint64*)data())[1])
 		{
 		case Pause:
+			*(qint64*)data() = 0;
+			unlock();
+			mtx.unlock();
 			emit processSetPause();
 			break;
 		case Prev:
+			*(qint64*)data() = 0;
+			unlock(); 
+			mtx.unlock();
 			emit processSetPrev();
 			break;
 		case Next:
+			*(qint64*)data() = 0;
+			unlock(); 
+			mtx.unlock();
 			emit processSetNext();
 			break;
 		default:
 			break;
 		}
-		*(qint64*)data() = 0;
-		unlock();
-		goto unl_ret;
+		return;
 	}
 
 	lock();
@@ -255,7 +269,7 @@ void AudioFileManager::on_client_timeout()
 		unlock();
 }
 
-void AudioFileManager::Init(const QString& filepath)
+void AudioFileManager::Init(const QByteArray& filepath)
 {
 	append(filepath);
 	current_fp_pos++;
