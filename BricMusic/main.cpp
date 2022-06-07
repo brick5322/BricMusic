@@ -12,6 +12,7 @@
 #include "Player.h"
 #include "Controller.h"
 #include "AudioFileManager.h"
+#include "ArgSplitter.h"
 
 
 extern"C"
@@ -75,15 +76,30 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    AudioFileManager manager(argc-1, argv+1);
-    if (!manager.AudioFileManagerCreate())
+    ArgSplitter splitter(argc, argv);
+    splitter.setLongOptions(3, "pause", "prev", "next");
+    splitter.parase();
+    int len = splitter.argc();
+
+    AudioFileManager manager(splitter.argc(),splitter.argv());
+
+    AudioFileManager::InputOption opt = AudioFileManager::Default;
+
+    if (splitter.hasLongOption(0))
+        opt = AudioFileManager::Pause;
+    else if (splitter.hasLongOption(1))
+        opt = AudioFileManager::Prev;
+    else if (splitter.hasLongOption(2))
+        opt = AudioFileManager::Next;
+
+    if (!manager.AudioFileManagerCreate(opt))
     {
         if (argc == 1)
             return 0;
         QObject::connect(&manager, &AudioFileManager::sendFinished, &a, &QCoreApplication::quit);
         return a.exec();
     }
-    else if(argc == 1)
+    else if(!manager.size())
     {
         if (lua_getglobal(Config, "AudioPaths") != LUA_TTABLE)
         {
@@ -101,13 +117,13 @@ int main(int argc, char *argv[])
                 lua_pop(Config, 1);
             }
         }
-        if (i == 1)
-        {
-            QMessageBox::critical(nullptr,
-                QMessageBox::tr("Load Err!"),
-                QMessageBox::tr("You load NOTHING!!!!\nAnyway,see Readme.md(Windows) or try \"man BricMusic\"(Linux) to find solution."), QMessageBox::Cancel);
-            return 0;
-        }
+    }
+    if (!manager.size())
+    {
+        QMessageBox::critical(nullptr,
+            QMessageBox::tr("Load Err!"),
+            QMessageBox::tr("You load NOTHING!!!!\nAnyway,see Readme.md(Windows) or try \"man BricMusic\"(Linux) to find solution."), QMessageBox::Cancel);
+        return 0;
     }
     QColor color = get_color(Config);
     if (lua_getglobal(Config, "LanguagePath") == LUA_TSTRING)
@@ -151,6 +167,9 @@ int main(int argc, char *argv[])
 
 	QObject::connect(&w, &BricMusic::setVolume, &player, &Player::setVolume);
     QObject::connect(&manager, &AudioFileManager::newProcesstask, &ctrler, &Controller::getNextAudio);
+    QObject::connect(&manager, &AudioFileManager::processSetPause, &w, &BricMusic::on_albumslider_clicked);
+    QObject::connect(&manager, &AudioFileManager::processSetPrev, &ctrler, &Controller::getPrevAudio);
+    QObject::connect(&manager, &AudioFileManager::processSetNext, &ctrler, &Controller::getNextAudio);
     QObject::connect(&manager, &AudioFileManager::getPath, &ctrler, &Controller::setNextPath);
 
 	QObject::connect(&decoder, &Decoder::attachedPic, &w, &BricMusic::setPic);

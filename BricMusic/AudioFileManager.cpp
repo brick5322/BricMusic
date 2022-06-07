@@ -18,6 +18,13 @@ extern"C"
 #include <signal.h>
 #endif // _WIN32
 
+extern"C"
+{
+#include <lualib.h>
+#include <lauxlib.h>
+#include <lua.h>
+}
+
 const QString& AudioFileManager::sharedMemoryKey = QString("BricMusicSharedMemoryKey");
 
 
@@ -25,11 +32,35 @@ const QString& AudioFileManager::sharedMemoryKey = QString("BricMusicSharedMemor
 AudioFileManager::AudioFileManager(int nb_filepaths, char** filepaths)
 	: QSharedMemory(sharedMemoryKey,nullptr),thr(nullptr),timerID(0),current_fp_pos(0)
 {
+	lua_State* Config = luaL_newstate();
+	luaL_openlibs(Config);
 	for (size_t i = 0; i < nb_filepaths; i++)
-		Init(filepaths[i]);
+	{
+		if (!strcmp((filepaths[i] + strlen(filepaths[i]) - 4), ".blu"))
+		{
+			if (luaL_dofile(Config, filepaths[i]))
+				continue;
+			if (lua_getglobal(Config, "MenuList") != LUA_TTABLE)
+				continue;
+			int i = 0;
+			while (true) {
+				lua_pushnumber(Config, ++i);
+				if (lua_gettable(Config, -2) != LUA_TSTRING)
+					break;
+				else
+				{
+					Init(lua_tostring(Config, -1));
+					lua_pop(Config, 1);
+				}
+			}
+		}
+		else
+			Init(filepaths[i]);
+	}
+	lua_close(Config);
 }
 
-bool AudioFileManager::AudioFileManagerCreate()
+bool AudioFileManager::AudioFileManagerCreate(InputOption opt)
 {
     timer.setInterval(30);
 
@@ -45,9 +76,20 @@ bool AudioFileManager::AudioFileManagerCreate()
 	}
 	else if (attach())
 	{
-		current_fp_pos = 0;
-		QObject::connect(&timer, &QTimer::timeout, this, &AudioFileManager::on_client_timeout);
-		timer.start();
+		if (opt == Default)
+		{
+			current_fp_pos = 0;
+			QObject::connect(&timer, &QTimer::timeout, this, &AudioFileManager::on_client_timeout);
+			timer.start();
+		}
+		else
+		{
+			lock();
+			((qint64*)data())[0] = 1;
+			((qint64*)data())[1] = opt;
+			unlock();
+			emit sendFinished();
+		}
 	}
 	return false;
 }
@@ -143,6 +185,27 @@ void AudioFileManager::on_server_timeout()
 			pos = 0;
 			latest_pid = 0;
 			}
+		goto unl_ret;
+	}
+	else if (*(qint64*)data() == 1)
+	{
+		lock();
+		switch (((qint64*)data())[1])
+		{
+		case Pause:
+			emit processSetPause();
+			break;
+		case Prev:
+			emit processSetPrev();
+			break;
+		case Next:
+			emit processSetNext();
+			break;
+		default:
+			break;
+		}
+		*(qint64*)data() = 0;
+		unlock();
 		goto unl_ret;
 	}
 

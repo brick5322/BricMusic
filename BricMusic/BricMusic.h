@@ -32,10 +32,11 @@ private slots:
     void on_prev_btn_clicked();
     void on_next_btn_clicked();
     void on_mode_btn_clicked();
-    void on_albumslider_clicked();
 public slots:
     void on_playtask_ready();
     void on_playtask_finished();
+    void on_albumslider_clicked();
+
 private:
     Controller ctrler;
     BPrettyButton& vol_btn;

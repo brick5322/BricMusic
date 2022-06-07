@@ -18,11 +18,12 @@ class AudioFileManager : public QSharedMemory
 	bool insert(int i, const QString& str);
 	bool append(const QString& str);
 public:
+	enum InputOption { Default, Pause, Prev, Next };
 	AudioFileManager(int nb_filepaths, char** filepaths);
 	~AudioFileManager(); 
 	void Init(const QString& filepath);
-
-	bool AudioFileManagerCreate();
+	inline int size() { return lPaths.size(); }
+	bool AudioFileManagerCreate(InputOption);
 	QString findFirstAudio();// @todo
 public slots:
     void findNextAudio(int mode);// @todo
@@ -31,6 +32,10 @@ private slots:
     void on_client_timeout();
 signals:
 	void newProcesstask();
+	void processSetPause();
+	void processSetPrev();
+	void processSetNext();
+
 	void getPath(QString);
 	void sendFinished();
 private:

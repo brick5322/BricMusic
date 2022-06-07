@@ -103,6 +103,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ArgSplitter.cpp" />
     <ClCompile Include="AudioFileManager.cpp" />
     <ClCompile Include="BAlbumSlider.cpp" />
     <ClCompile Include="BPrettyButton.cpp" />
@@ -118,6 +119,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ArgSplitter.h" />
     <ClInclude Include="resource.h" />
     <QtMoc Include="Decoder.h" />
     <QtMoc Include="Controller.h" />
