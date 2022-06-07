@@ -30,7 +30,7 @@ signals:
 public slots:
 	void decode(FIFO& buffer);
 	void flush(unsigned int timeStamp);
-	int open(const QString& filepath);
+	int open(const QByteArray& filepath);
 	void close();
 private:
 	AVSampleFormat sampleFormat;

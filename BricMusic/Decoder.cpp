@@ -35,13 +35,13 @@ Decoder::~Decoder()
 	delete decodeBuffer;
 }
 
-int Decoder::open(const QString& filepath)
+int Decoder::open(const QByteArray& filepath)
 {
 	int err = 0;
 #ifdef _DEBUG
 	qDebug() <<"open" << filepath;
 #endif // DEBUG
-	if (err = avformat_open_input(&fmt, filepath.toUtf8().data(), NULL, NULL)) {
+	if (err = avformat_open_input(&fmt, filepath.data(), NULL, NULL)) {
 		emit deformatErr(err);
 		return err;
 	}
@@ -50,7 +50,7 @@ int Decoder::open(const QString& filepath)
 		return err;
 	}
 #ifdef _DEBUG
-	av_dump_format(fmt, 0, filepath.toUtf8().data(), 0);
+	av_dump_format(fmt, 0, filepath.data(), 0);
 #endif
 	for (int i = 0; i < fmt->nb_streams; i++)
 		if (fmt->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
