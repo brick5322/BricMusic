@@ -1,9 +1,10 @@
 #include "BricMusic.h"
-#include <QDebug>
 #include <QCoreApplication>
 #include <QFocusEvent>
 #include <QIcon>
-
+#ifdef _DEBUG
+#include <QDebug>
+#endif
 BricMusic::BricMusic(const QColor& color, QWidget* parent)
 	: QWidget(parent),
 	vol_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),

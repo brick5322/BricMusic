@@ -6,8 +6,9 @@
 #include <cmath>
 #include <QPaintEvent>
 
+#ifdef _DEBUG
 #include <QDebug>
-
+#endif
 const QString& BAlbumSlider::defaultPic = QString(":/img/defaultAlbum.tsvg");
 
 BAlbumSlider::BAlbumSlider(const QString& normal, const QString& press, int radius, int maximum, QWidget* parent)
@@ -166,7 +167,9 @@ void BAlbumSlider::mouseMoveEvent(QMouseEvent* e)
 {
 	if (e->button() != Qt::LeftButton)
 		return;
+#ifdef _DEBUG
 	qDebug() << "mouseMove" << e->button();
+#endif // _DEBUG
 }
 
 void BAlbumSlider::mouseReleaseEvent(QMouseEvent* e)

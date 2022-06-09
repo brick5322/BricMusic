@@ -11,6 +11,25 @@
         <source>Exit</source>
         <translation>Exit</translation>
     </message>
+    <message>
+        <source>Save</source>
+        <translation>Save</translation>
+    </message>
+</context>
+<context>
+    <name>QFileDialog</name>
+    <message>
+        <source>save .blu MenuList</source>
+        <translation>save .blu MenuList</translation>
+    </message>
+    <message>
+        <source>/new MenuList.blu</source>
+        <translation>/new MenuList.blu</translation>
+    </message>
+    <message>
+        <source>MenuList (*.blu)</source>
+        <translation>MenuList (*.blu)</translation>
+    </message>
 </context>
 <context>
     <name>QMessageBox</name>

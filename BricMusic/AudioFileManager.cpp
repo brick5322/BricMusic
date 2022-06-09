@@ -1,8 +1,10 @@
 #include "AudioFileManager.h"
 #include <QTimerEvent>
 #include <QtWidgets/QApplication>
-#include <QDebug>
 
+#ifdef _DEBUG
+#include <QDebug>
+#endif
 extern"C"
 {
 #include <libavformat/avformat.h>
@@ -38,7 +40,7 @@ AudioFileManager::AudioFileManager(int nb_filepaths, char** filepaths)
 	{
 		if (!strcmp((filepaths[i] + strlen(filepaths[i]) - 4), ".blu"))
 		{
-			if (luaL_dofile(Config, filepaths[i]))
+			if (luaL_dofile(Config, QString(filepaths[i]).toLocal8Bit().data()))
 				continue;
 			if (lua_getglobal(Config, "MenuList") != LUA_TTABLE)
 				continue;
@@ -267,6 +269,23 @@ void AudioFileManager::on_client_timeout()
 	}
 	else
 		unlock();
+}
+
+void AudioFileManager::saveBLU(const QString& filepath)
+{
+	if (filepath.isEmpty())
+		return;
+	QByteArray fpArr = filepath.toLocal8Bit();
+	FILE* fp = fopen(fpArr.data(), "w");
+	fputs("MenuList = {\n", fp);
+	for (QByteArray i : lPaths)
+	{
+		fputs("    \"", fp);
+		fputs(i.replace('\\','/').data(), fp);
+		fputs("\",\n", fp);
+	}
+	fputs("}\n", fp);
+	fclose(fp);
 }
 
 void AudioFileManager::Init(const QByteArray& filepath)

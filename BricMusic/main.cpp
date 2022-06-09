@@ -4,6 +4,8 @@
 #include <QMessageBox>
 #include <QSystemTrayIcon>
 #include <QTranslator>
+#include <QFileDialog>
+#include <QStandardPaths>
 #include <QMenu>
 #include <QString>
 #include <QFile>
@@ -163,12 +165,19 @@ int main(int argc, char *argv[])
 	icon.show();
 
     QMenu menu;
+
     QAction Show;
     QAction Exit;
+    QAction Save;
+
     Show.setText(QAction::tr("Show"));
+    Save.setText(QAction::tr("Save"));
     Exit.setText(QAction::tr("Exit"));
+
     menu.addAction(&Show);
+    menu.addAction(&Save);
     menu.addAction(&Exit);
+
 	QFile file(qssPath);
 	file.open(QFile::ReadOnly);
 	menu.setStyleSheet(file.readAll());
@@ -209,6 +218,15 @@ int main(int argc, char *argv[])
     QObject::connect(&Exit, &QAction::triggered, &player,&Player::terminate);
     QObject::connect(&Exit, &QAction::triggered, &w,&BricMusic::close);
     QObject::connect(&Show, &QAction::triggered, &w,&BricMusic::show);
+    QObject::connect(&Save, &QAction::triggered, [&](){
+            manager.saveBLU(
+                QFileDialog::getSaveFileName(
+                    &w,
+                    QFileDialog::tr("save .blu MenuList"),
+                    QStandardPaths::writableLocation(QStandardPaths::MusicLocation)+ QFileDialog::tr("/new MenuList.blu"),
+                    QFileDialog::tr("MenuList (*.blu)")
+                ));
+        });
     QObject::connect(&Exit, &QAction::triggered, &a,&QApplication::quit);
 
     ctrler.setDecode(manager.findFirstAudio());

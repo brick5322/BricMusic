@@ -24,9 +24,10 @@ public:
 	void Init(const QByteArray& filepath);
 	inline int size() { return lPaths.size(); }
 	bool AudioFileManagerCreate(InputOption);
-	QByteArray findFirstAudio();// @todo
+	QByteArray findFirstAudio();
 public slots:
-    void findNextAudio(int mode);// @todo
+    void findNextAudio(int mode);
+	void saveBLU(const QString& filepath);
 private slots:
     void on_server_timeout();
     void on_client_timeout();

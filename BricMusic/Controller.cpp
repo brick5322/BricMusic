@@ -57,8 +57,10 @@ void Controller::getContext(AVSampleFormat sampleFormat, int channel_layout, int
 	{
 	case AV_CH_LAYOUT_MONO:
 		audioContext.channels = 1;
+		break;
 	case AV_CH_LAYOUT_STEREO:
 		audioContext.channels = 2;
+		break;
 	default:
 		audioContext.channels = 2;
 		break;
