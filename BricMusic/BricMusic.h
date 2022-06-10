@@ -2,6 +2,7 @@
 
 #include <QtWidgets/QWidget>
 #include <QPoint>
+#include <QTimer>
 #include <QPropertyAnimation>
 #include "BPrettyButton.h"
 #include "BAlbumSlider.h"
@@ -21,7 +22,6 @@ protected:
     void leaveEvent(QEvent*);
     void wheelEvent(QWheelEvent*);
     void closeEvent(QCloseEvent*);
-    void focusOutEvent(QFocusEvent*);
 signals:
     void setVolume(int vol);
     void setPic(uchar* picdata, int size);
@@ -39,6 +39,7 @@ public slots:
 
 private:
     Controller ctrler;
+
     BPrettyButton& vol_btn;
     BPrettyButton& hide_btn;
     BPrettyButton& prev_btn;
@@ -46,6 +47,7 @@ private:
     BPrettyButton& mode_btn;
     BPrettyButton* btns[5];
     QPoint btns_pos[5];
+    QTimer hideBtn_delay;
     int ani_current_btn;
     bool btns_hidden;
 

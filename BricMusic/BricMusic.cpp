@@ -1,6 +1,7 @@
 #include "BricMusic.h"
 #include <QCoreApplication>
-#include <QFocusEvent>
+#include <QMouseEvent>
+#include <QWheelEvent>
 #include <QIcon>
 #ifdef _DEBUG
 #include <QDebug>
@@ -37,6 +38,9 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
 	setFocusPolicy(Qt::StrongFocus);
 	setWindowIcon(QIcon(":/img/icon.png"));
 
+	hideBtn_delay.setInterval(500);
+	hideBtn_delay.setSingleShot(true);
+
 	QPoint center = albumslider->mapToParent(QPoint(25, 25));
 
 	btns_pos[0] = (center + QPointF(-1, 0) * 50 * 1.75).toPoint();
@@ -68,7 +72,12 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
 	QObject::connect(albumslider, &BAlbumSlider::clicked, this, &BricMusic::on_albumslider_clicked);
 
 	QObject::connect(this, &BricMusic::setPic, albumslider, &BAlbumSlider::setAlbumPic);
-
+	QObject::connect(&hideBtn_delay, &QTimer::timeout, [&]() 
+		{	
+			btns_hidden = true;
+			if (ani.state() != QAbstractAnimation::Running)
+				on_ani_finished(); 
+		});
 
 	ctrler.setMode(mode);
 
@@ -115,6 +124,10 @@ bool BricMusic::eventFilter(QObject* obj, QEvent* e)
 
 void BricMusic::enterEvent(QEvent*)
 {
+#ifdef _DEBUG
+	qDebug() << "enterEvent";
+#endif // _DEBUG
+	hideBtn_delay.stop();
 	this->activateWindow();
 	this->raise();
 	btns_hidden = false;
@@ -124,8 +137,16 @@ void BricMusic::enterEvent(QEvent*)
 
 void BricMusic::leaveEvent(QEvent*)
 {
+#ifdef _DEBUG
+	qDebug() << "leaveEvent";
+#endif // _DEBUG
 	if (ani.state() == QAbstractAnimation::Running)
+	{
 		btns_hidden = true;
+		hideBtn_delay.stop();
+	}
+	else
+		hideBtn_delay.start();
 }
 
 void BricMusic::wheelEvent(QWheelEvent* e)
@@ -151,13 +172,6 @@ void BricMusic::closeEvent(QCloseEvent* e)
 	ctrler.setMode(Controller::quit);
 	ctrler.playTaskStop();
 	e->accept();
-}
-
-void BricMusic::focusOutEvent(QFocusEvent*)
-{
-	btns_hidden = true;
-	if (ani.state() != QAbstractAnimation::Running)
-		on_ani_finished();
 }
 
 void BricMusic::on_vol_btn_clicked()
