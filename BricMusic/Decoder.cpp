@@ -40,6 +40,7 @@ int Decoder::open(const QByteArray& filepath)
 	int err = 0;
 #ifdef _DEBUG
 	qDebug() <<"open" << filepath;
+	qDebug() <<"open" << filepath.data();
 #endif // DEBUG
 	if (err = avformat_open_input(&fmt, filepath.data(), NULL, NULL)) {
 		emit deformatErr(err);
@@ -153,7 +154,7 @@ void Decoder::decode(FIFO& buffer) {
 			av_packet_unref(decodecPacket);
 			if (!fmt)
 				return;
-			if (av_read_frame(fmt, decodecPacket))
+			if (err = av_read_frame(fmt, decodecPacket))
 			{
 				close();
 				return;
@@ -165,8 +166,16 @@ void Decoder::decode(FIFO& buffer) {
 					continue;
 				if (err = avcodec_send_packet(ctx, decodecPacket))
 					goto errRet;
-				if (err = avcodec_receive_frame(ctx, decodecFrame))
+				switch (avcodec_receive_frame(ctx, decodecFrame))
+				{
+				case 0:
+					break;
+				case AVERROR(EAGAIN):
+					return;
+				default:
 					goto errRet;
+				}
+
 
 				if (swrCtx)
 				{

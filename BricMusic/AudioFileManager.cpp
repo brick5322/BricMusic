@@ -40,8 +40,13 @@ AudioFileManager::AudioFileManager(int nb_filepaths, char** filepaths)
 	{
 		if (!strcmp((filepaths[i] + strlen(filepaths[i]) - 4), ".blu"))
 		{
+#ifdef _WIN32
 			if (luaL_dofile(Config, QString(filepaths[i]).toLocal8Bit().data()))
 				continue;
+#elif defined(__linux__)
+			if (luaL_dofile(Config, filepaths[i]))
+				continue;
+#endif // _WIN32
 			if (lua_getglobal(Config, "MenuList") != LUA_TTABLE)
 				continue;
 			int i = 0;
@@ -51,6 +56,9 @@ AudioFileManager::AudioFileManager(int nb_filepaths, char** filepaths)
 					break;
 				else
 				{
+#ifdef _DEBUG
+					qDebug() << lua_tostring(Config, -1);
+#endif // _DEBUG
 					Init(lua_tostring(Config, -1));
 					lua_pop(Config, 1);
 				}
@@ -278,12 +286,21 @@ void AudioFileManager::saveBLU(const QString& filepath)
 	QByteArray fpArr = filepath.toLocal8Bit();
 	FILE* fp = fopen(fpArr.data(), "w");
 	fputs("MenuList = {\n", fp);
+#ifdef _WIN32
 	for (QByteArray i : lPaths)
 	{
 		fputs("    \"", fp);
 		fputs(i.replace('\\','/').data(), fp);
 		fputs("\",\n", fp);
 	}
+#elif defined(__linux__)
+	for (const QByteArray& i : lPaths)
+	{
+		fputs("    \"", fp);
+		fputs(i.data(), fp);
+		fputs("\",\n", fp);
+	}
+#endif
 	fputs("}\n", fp);
 	fclose(fp);
 }
