@@ -142,10 +142,11 @@ void Controller::playTaskStop()
 	else
 		emit getAudioPath(mode&0x3fffffff);
 	current_mode = None;
-	if (!timerID)
-		return;
+	is_pos_changing = false;
 	is_finishing = true;
 	emit setPausing();
+	if (!timerID)
+		return;
 	killTimer(timerID);
 	timerID = 0;
 }

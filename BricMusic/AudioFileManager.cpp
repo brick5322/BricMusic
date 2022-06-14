@@ -174,7 +174,7 @@ void AudioFileManager::findNextAudio(int mode)
 	current_fp_pos %= lPaths.size();
 	emit getPath(path = lPaths[current_fp_pos]);
 #ifdef _DEBUG
-	qDebug() << QString::fromLocal8Bit("下一首:") << current_fp_pos << path;
+	qDebug() << QString::fromLocal8Bit("下一首:") << current_fp_pos << QString::fromUtf8(path)<<QString::fromLocal8Bit(path);
 #endif // _DEBUG
 unl_ret:
 	mtx.unlock();
