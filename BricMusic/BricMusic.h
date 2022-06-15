@@ -13,9 +13,8 @@ class BricMusic : public QWidget
     Q_OBJECT
 
 public:
-    BricMusic(const QColor& color,QWidget *parent = Q_NULLPTR);
+    BricMusic(Controller& ctrler,const QColor& color,QWidget *parent = Q_NULLPTR);
     ~BricMusic() {}
-    Controller& controller();
 protected:
     bool eventFilter(QObject* obj, QEvent*);
     void enterEvent(QEvent*);
@@ -38,7 +37,7 @@ public slots:
     void on_albumslider_clicked();
 
 private:
-    Controller ctrler;
+    Controller& ctrler;
 
     BPrettyButton& vol_btn;
     BPrettyButton& hide_btn;

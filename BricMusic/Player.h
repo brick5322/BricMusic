@@ -1,6 +1,6 @@
 #pragma once
 #include <QObject>
-#include "Controller.h"
+#include <functional>
 
 extern"C"
 {
@@ -24,12 +24,13 @@ signals:
 	void terminated();
 	void playReady();
 public:
-	Player(Controller* parent = Q_NULLPTR);
+	Player(std::function<void(unsigned char*, int)> dataCallback, QObject* parent = Q_NULLPTR);
 	~Player(){}
 	static constexpr int SDL_buffersz = 1024;
 	static void Player_Callback(Player* plr, Uint8* stream, int len);
 private:
 	SDL_AudioSpec audioFormat;
+	std::function<void(unsigned char*,int)> setData;
 	int externVolume;
 	int privateVolume;
 	bool pausing;

@@ -1,10 +1,1 @@
-<?xml version="1.0" encoding="utf-8"?>
-<svg version="1.1" id="prev" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 48 48" style="enable-background:new 0 0 48 48;" xml:space="preserve">
-	<style type="text/css">
-	.st0{fill:&color&;}
-</style>
-	<path class="st0" d="M41.26,7.01l0,33.98c0,0.59-0.64,0.95-1.14,0.66L10.69,24.66c-0.51-0.29-0.51-1.03,0-1.32L40.12,6.35
-		C40.63,6.05,41.26,6.42,41.26,7.01z" />
-	<path class="st0" d="M9.48,40.79h0.04c0.41,0,0.74-0.33,0.74-0.74V7.96c0-0.41-0.33-0.74-0.74-0.74H9.48
-	c-0.41,0-0.74,0.33-0.74,0.74v32.09C8.74,40.45,9.07,40.79,9.48,40.79z" />
-</svg>
+<?xml version="1.0" encoding="utf-8"?><svg version="1.1" x="0px" y="0px" viewBox="0 0 48 48"><style type="text/css">.st0{fill:&color&;}</style><path class="st0" d="M41.26,7.01l0,33.98c0,0.59-0.64,0.95-1.14,0.66L10.69,24.66c-0.51-0.29-0.51-1.03,0-1.32L40.12,6.35 C40.63,6.05,41.26,6.42,41.26,7.01z" /><path class="st0" d="M9.48,40.79h0.04c0.41,0,0.74-0.33,0.74-0.74V7.96c0-0.41-0.33-0.74-0.74-0.74H9.48 c-0.41,0-0.74,0.33-0.74,0.74v32.09C8.74,40.45,9.07,40.79,9.48,40.79z" /></svg>

@@ -6,8 +6,8 @@
 #ifdef _DEBUG
 #include <QDebug>
 #endif
-BricMusic::BricMusic(const QColor& color, QWidget* parent)
-	: QWidget(parent),
+BricMusic::BricMusic(Controller& ctrler,const QColor& color, QWidget* parent)
+	: QWidget(parent),ctrler(ctrler),
 	vol_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
 	hide_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
 	prev_btn(*new BPrettyButton(color, QColor(color.red(), color.green(), color.blue(), 0), color, this)),
@@ -89,11 +89,6 @@ BricMusic::BricMusic(const QColor& color, QWidget* parent)
 	QObject::connect(&ctrler, &Controller::playTaskFinished, this, &BricMusic::on_playtask_finished);
 
 	QObject::connect(albumslider, &BAlbumSlider::sliderMoved, &ctrler, &Controller::posChange);
-}
-
-Controller& BricMusic::controller()
-{
-	return ctrler;
 }
 
 bool BricMusic::eventFilter(QObject* obj, QEvent* e)

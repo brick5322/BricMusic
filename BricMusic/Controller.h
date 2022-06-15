@@ -12,6 +12,7 @@ extern "C"
 #include <libswresample/swresample.h>
 #include <SDL.h>
 }
+static constexpr size_t AudioLevel = 64;
 
 class Controller : public QObject
 {
@@ -19,14 +20,13 @@ class Controller : public QObject
 
 public:
 	static constexpr size_t SDL_buffersz = 1024;
-	static constexpr size_t AudioLevel = 64;
 	enum PlayBackMode { None = 0,loop, loopPlayBack, singleTune, randomTune,quit = 0x40000000,prev = 0x80000000 };
 	Controller(QObject *parent = Q_NULLPTR);
 	~Controller();
 	SDL_mutex* mutex();
 	bool isFinishing();
 signals:
-	void getData(FIFO&);
+	void getData(FIFO&,void*);
 	void setContext(SDL_AudioSpec&);
 
 	void playTaskReady();

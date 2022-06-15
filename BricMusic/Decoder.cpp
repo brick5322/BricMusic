@@ -6,7 +6,7 @@
 #endif
 
 
-Decoder::Decoder(Controller* parent) :QObject(parent),
+Decoder::Decoder(QObject* parent) :QObject(parent),
 fmt(avformat_alloc_context()), cdpr(NULL),
 stream(NULL), ctx(avcodec_alloc_context3(NULL)),
 swrCtx(swr_alloc()), picPacket(NULL),decodeBuffer(new uchar[BufferSize]), decodeData(decodeBuffer),sz_decodeData(0),
@@ -143,7 +143,7 @@ void Decoder::flush(unsigned int timeStamp)
 	av_seek_frame(fmt, stream->index, (int64_t)timeStamp/stream->time_base.num* stream->time_base.den/sample_rate, AVSEEK_FLAG_FRAME);
 }
 
-void Decoder::decode(FIFO& buffer) {
+void Decoder::decode(FIFO& buffer,void* mtx) {
 	int err = 0;
 	int sz = buffer.freesize();
 	if (!sz)
@@ -185,9 +185,11 @@ void Decoder::decode(FIFO& buffer) {
 				}
 				else if (decodecFrame->linesize[0] > sz)
 				{
-					SDL_LockMutex(static_cast<Controller*>(parent())->mutex());
+					//SDL_LockMutex(static_cast<Controller*>(parent())->mutex());
+					SDL_LockMutex(static_cast<SDL_mutex*>(mtx));
 					buffer[sz] << decodecFrame->data[0];
-					SDL_UnlockMutex(static_cast<Controller*>(parent())->mutex());
+					SDL_UnlockMutex(static_cast<SDL_mutex*>(mtx));
+					//SDL_UnlockMutex((parent())->mutex());
 					//saver2.write(decodecFrame->data[0], sz);
 					memcpy(decodeData,decodecFrame->data[0] + sz, decodecFrame->linesize[0] - sz);
 					sz_decodeData = decodecFrame->linesize[0] - sz;
@@ -195,9 +197,11 @@ void Decoder::decode(FIFO& buffer) {
 				}
 				else 
 				{
-					SDL_LockMutex(static_cast<Controller*>(parent())->mutex());
+					//SDL_LockMutex(static_cast<Controller*>(parent())->mutex());
+					SDL_LockMutex(static_cast<SDL_mutex*>(mtx));
 					buffer[decodecFrame->linesize[0]] << decodecFrame->data[0];
-					SDL_UnlockMutex(static_cast<Controller*>(parent())->mutex());
+					//SDL_UnlockMutex(static_cast<Controller*>(parent())->mutex());
+					SDL_UnlockMutex(static_cast<SDL_mutex*>(mtx));
 
 					//saver2.write(decodecFrame->data[0], decodecFrame->linesize[0]);
 					return;
@@ -207,18 +211,22 @@ void Decoder::decode(FIFO& buffer) {
 
 	if (sz <= sz_decodeData)
 	{
-		SDL_LockMutex(static_cast<Controller*>(parent())->mutex());
+		//SDL_LockMutex(static_cast<Controller*>(parent())->mutex());
+		SDL_LockMutex(static_cast<SDL_mutex*>(mtx));
 		buffer[sz] << decodeData;
-		SDL_UnlockMutex(static_cast<Controller*>(parent())->mutex());
+		//SDL_UnlockMutex(static_cast<Controller*>(parent())->mutex());
+		SDL_UnlockMutex(static_cast<SDL_mutex*>(mtx));
 		//saver2.write(decodeData, sz);
 
 		(sz_decodeData -= sz)?decodeData += sz: decodeData = decodeBuffer ;
 	}
 	else if(sz_decodeData)
 	{
-		SDL_LockMutex(static_cast<Controller*>(parent())->mutex());
+		//SDL_LockMutex(static_cast<Controller*>(parent())->mutex());
+		SDL_LockMutex(static_cast<SDL_mutex*>(mtx));
 		buffer[sz_decodeData] << decodeData;
-		SDL_UnlockMutex(static_cast<Controller*>(parent())->mutex());
+		//SDL_UnlockMutex(static_cast<Controller*>(parent())->mutex());
+		SDL_UnlockMutex(static_cast<SDL_mutex*>(mtx));
 		//saver2.write(decodeData, sz_decodeData);
 
 		decodeData = decodeBuffer;

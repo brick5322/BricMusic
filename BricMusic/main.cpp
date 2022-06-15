@@ -153,12 +153,12 @@ int main(int argc, char *argv[])
 
     lua_close(Config);
 
-	BricMusic w(color);
-    QSystemTrayIcon icon(&w);
+    Controller ctrler;
+    Player player(std::bind(&Controller::setData, &ctrler, std::placeholders::_1, std::placeholders::_2));
+    Decoder decoder;
 
-    Controller& ctrler = w.controller();
-    Player player(&ctrler);
-    Decoder decoder(&ctrler);
+	BricMusic w(ctrler,color);
+    QSystemTrayIcon icon(&w);
 
 	icon.setToolTip(QString("BricMusic"));
 	icon.setIcon(QIcon(":/img/BM-LOGO/icon16.png"));

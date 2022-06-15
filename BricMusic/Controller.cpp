@@ -178,5 +178,5 @@ void Controller::playTaskInit()
 void Controller::timerEvent(QTimerEvent*)
 {
 	if (fifo.freesize())
-		getData(fifo);
+		getData(fifo,mtx);
 }

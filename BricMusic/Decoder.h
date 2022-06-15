@@ -3,10 +3,10 @@
 #include <QObject>
 #include <functional>
 #include "FIFO.h"
-#include "Controller.h"
 
 extern "C"
 {
+#include <SDL.h>
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libswresample/swresample.h>
@@ -19,7 +19,7 @@ class Decoder : public QObject {
 	Q_OBJECT
 
 public:
-	Decoder(Controller* parent = Q_NULLPTR);
+	Decoder(QObject* parent = Q_NULLPTR);
 	~Decoder();
 signals:
 	void attachedPic(uchar* picdata,int size);
@@ -28,7 +28,7 @@ signals:
 	void decodeErr(int);
 	void deformatErr(int);
 public slots:
-	void decode(FIFO& buffer);
+	void decode(FIFO& buffer,void* mtx);
 	void flush(unsigned int timeStamp);
 	int open(const QByteArray& filepath);
 	void close();
