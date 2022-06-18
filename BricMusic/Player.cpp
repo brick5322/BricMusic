@@ -45,7 +45,6 @@ void Player::Player_Callback(Player* plr, Uint8* stream, int len)
 	else
 		plr->privateVolume = AudioLevel;
 	SDL_memset(stream, 0, len);
-	//static_cast<Controller*>(plr->parent())->setData(stream, len);
 	plr->setData(stream, len);
 	switch (plr->audioFormat.format)
 	{
@@ -69,7 +68,6 @@ void Player::Player_Callback(Player* plr, Uint8* stream, int len)
 		break;
 	}
 ret:
-	//initializer.write(stream, len);
 	return;
 }
 

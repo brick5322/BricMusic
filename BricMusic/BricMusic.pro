@@ -23,6 +23,7 @@ LIBS += -llua5.3\
         -lavformat\
         -lavcodec
 SOURCES += \
+    ArgSplitter.cpp \
     AudioFileManager.cpp \
     BAlbumSlider.cpp \
     BPrettyButton.cpp \
@@ -32,12 +33,11 @@ SOURCES += \
     Decoder.cpp \
     FIFO.cpp \
     FIFOBuffer.c \
-    LoopList.c \
     Player.cpp \
-    list_DNode.c \
     main.cpp
 
 HEADERS += \
+    ArgSplitter.h \
     AudioFileManager.h \
     BAlbumSlider.h \
     BPrettyButton.h \
@@ -47,9 +47,7 @@ HEADERS += \
     Decoder.h \
     FIFO.h \
     FIFOBuffer.h \
-    LoopList.h \
     Player.h \
-    list_DNode.h \
     pubdefs.h
 
 # Default rules for deployment.

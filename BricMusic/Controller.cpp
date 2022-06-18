@@ -12,6 +12,7 @@ Controller::Controller(QObject* parent)
 	is_finishing(false), is_paused(false), is_pausing(false), is_pos_changing(false),current_mode(None),
 	mtx(SDL_CreateMutex()), timerID(0), playTimestamp(0)
 {
+	qRegisterMetaType<AVSampleFormat>("AVSampleFormat");
 	recentPath.clear();
 }
 
@@ -23,6 +24,11 @@ Controller::~Controller()
 SDL_mutex* Controller::mutex()
 {
 	return mtx;
+}
+
+FIFO& Controller::buffer()
+{
+	return this->fifo;
 }
 
 
@@ -166,7 +172,7 @@ void Controller::getPrevAudio()
 void Controller::start()
 {
 	is_finishing = false;
-	timerID = startTimer(10);
+	timerID = startTimer(5);
 }
 
 void Controller::playTaskInit()
@@ -178,5 +184,5 @@ void Controller::playTaskInit()
 void Controller::timerEvent(QTimerEvent*)
 {
 	if (fifo.freesize())
-		getData(fifo,mtx);
+		getData(mtx);
 }

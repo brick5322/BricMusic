@@ -1,0 +1,52 @@
+.TH BricMusic 6 "$Date: 2022/06/05 22:17:10 $"
+.SH 她的名字 
+BricMusic \- 一款简单的音乐播放器
+.SH 她的模样
+.B BricMusic
+[
+.I args
+]
+.SH 她的秘密
+.B BricMusic
+是一款跨平台的音乐播放器，可能会让你失望，毕竟她简单到甚至没有一个播放列表界面。正确的使用方式是把她设置为默认的音乐软件，然后点击要播放的音频就可以了，当然，如果你想要做一个默认的播放列表，你可能需要编写一下Lua脚本。同样，你也可以在Lua脚本中设置其他选项。Lua脚本的路径在
+.I ~/.BricMusic/settings.lua
+.PP
+在这里也介绍一下Lua脚本要编写的内容
+.TP
+.B LanguagePath
+设置语言的路径，当然你也可以替换
+.I ~/.BricMusic/translations/default.qm
+来设置。
+.TP
+.B AudioPaths
+音乐播放路径的列表，你可以在后续的脚本中编写你自己的逻辑，生成一个适合你的默认播放列表。我在里面写了一个默认的列表生成逻辑，以供参考
+.TP
+.B ThemeColor
+默认的颜色
+.B #E799B0
+是
+.B 嘉然小姐
+的应援色
+.TP
+.B 关注嘉然，顿顿解馋！
+.I space.bilibili.com/672328094
+.PP
+你当然可以设置成其他颜色，这里给出如下参考
+.RS
+.B #DB7D74
+贝拉
+.RE
+.RS
+.B #9AC8E2
+向晚
+.RE
+.RS
+.B #576690
+乃琳
+.RE
+.RS
+.B #B8A6D9
+珈乐
+.RE
+.SH AUTHORS
+Liu Fubaichuan <LiuFubaichuan@outlook.com>

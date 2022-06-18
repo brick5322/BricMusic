@@ -1,0 +1,2 @@
+path="/home/$SUDO_USER/.BricMusic"
+rm -r $path

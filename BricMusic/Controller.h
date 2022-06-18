@@ -24,9 +24,10 @@ public:
 	Controller(QObject *parent = Q_NULLPTR);
 	~Controller();
 	SDL_mutex* mutex();
+	FIFO& buffer();
 	bool isFinishing();
 signals:
-	void getData(FIFO&,void*);
+	void getData(void*);
 	void setContext(SDL_AudioSpec&);
 
 	void playTaskReady();

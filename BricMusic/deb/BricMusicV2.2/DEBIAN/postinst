@@ -1,0 +1,11 @@
+path="/home/$SUDO_USER/.BricMusic"
+mkdir "/home/$SUDO_USER/BricMusicPath"
+sudo chown -R $SUDO_USER:$SUDO_USER "/home/$SUDO_USER/BricMusicPath"
+mkdir $path
+mkdir $path/qss
+mkdir $path/translations/
+mv /tmp/qss/* $path/qss
+mv /tmp/translations/* $path/translations
+mv /tmp/settings.lua $path/
+sudo chown -R $SUDO_USER:$SUDO_USER $path
+sed -i 's/&path&/\/home\/'$SUDO_USER'\/BricMusicPath/g' $path/settings.lua

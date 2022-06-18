@@ -6,7 +6,7 @@
 #endif
 
 
-Decoder::Decoder(QObject* parent) :QObject(parent),
+Decoder::Decoder(FIFO& buffer,QObject* parent) :QObject(parent),buffer(buffer),
 fmt(avformat_alloc_context()), cdpr(NULL),
 stream(NULL), ctx(avcodec_alloc_context3(NULL)),
 swrCtx(swr_alloc()), picPacket(NULL),decodeBuffer(new uchar[BufferSize]), decodeData(decodeBuffer),sz_decodeData(0),
@@ -116,7 +116,8 @@ int Decoder::open(const QByteArray& filepath)
 	default:
 		break;
 	}
-	av_seek_frame(fmt, stream->index, (int64_t)stream->start_time, AVSEEK_FLAG_FRAME);
+	if(stream->start_time!= AV_NOPTS_VALUE)
+		av_seek_frame(fmt, stream->index, (int64_t)stream->start_time, AVSEEK_FLAG_FRAME);
 #ifdef _DEBUG
 	qDebug() << QTime::currentTime() << "emit basicInfo";
 #endif
@@ -143,7 +144,7 @@ void Decoder::flush(unsigned int timeStamp)
 	av_seek_frame(fmt, stream->index, (int64_t)timeStamp/stream->time_base.num* stream->time_base.den/sample_rate, AVSEEK_FLAG_FRAME);
 }
 
-void Decoder::decode(FIFO& buffer,void* mtx) {
+void Decoder::decode(void* mtx) {
 	int err = 0;
 	int sz = buffer.freesize();
 	if (!sz)
@@ -179,8 +180,12 @@ void Decoder::decode(FIFO& buffer,void* mtx) {
 
 				if (swrCtx)
 				{
-					swr_convert(swrCtx, &decodeData, BufferSize, (const uint8_t**)decodecFrame->data, decodecFrame->nb_samples);
-					sz_decodeData = cdpr->channels * cdpr->frame_size * av_get_bytes_per_sample(sampleFormat);
+					//int sz_samples = swr_convert(swrCtx, &decodeData, BufferSize, (const uint8_t**)decodecFrame->data, decodecFrame->nb_samples);
+					//sz_decodeData = cdpr->channels * cdpr->frame_size * av_get_bytes_per_sample(sampleFormat);
+					sz_decodeData =
+						swr_convert(swrCtx, &decodeData, BufferSize, (const uint8_t**)decodecFrame->data, decodecFrame->nb_samples)
+						* av_get_bytes_per_sample(sampleFormat)
+						* cdpr->channels;
 					return;
 				}
 				else if (decodecFrame->linesize[0] > sz)

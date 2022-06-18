@@ -19,7 +19,7 @@ class Decoder : public QObject {
 	Q_OBJECT
 
 public:
-	Decoder(QObject* parent = Q_NULLPTR);
+	Decoder(FIFO& buffer,QObject* parent = Q_NULLPTR);
 	~Decoder();
 signals:
 	void attachedPic(uchar* picdata,int size);
@@ -28,11 +28,12 @@ signals:
 	void decodeErr(int);
 	void deformatErr(int);
 public slots:
-	void decode(FIFO& buffer,void* mtx);
+	void decode(void* mtx);
 	void flush(unsigned int timeStamp);
 	int open(const QByteArray& filepath);
 	void close();
 private:
+	FIFO& buffer;
 	AVSampleFormat sampleFormat;
 	int channel_layout;
 	int sample_rate;

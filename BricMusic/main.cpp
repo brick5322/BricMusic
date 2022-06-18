@@ -155,7 +155,12 @@ int main(int argc, char *argv[])
 
     Controller ctrler;
     Player player(std::bind(&Controller::setData, &ctrler, std::placeholders::_1, std::placeholders::_2));
-    Decoder decoder;
+    //Decoder decoder;
+
+    Decoder decoder(ctrler.buffer());
+    QThread dec_thr;
+    decoder.moveToThread(&dec_thr);
+    dec_thr.start();
 
 	BricMusic w(ctrler,color);
     QSystemTrayIcon icon(&w);
@@ -227,7 +232,8 @@ int main(int argc, char *argv[])
                     QFileDialog::tr("MenuList (*.blu)")
                 ));
         });
-    QObject::connect(&Exit, &QAction::triggered, &a,&QApplication::quit);
+    QObject::connect(&Exit, &QAction::triggered, [&]() {dec_thr.quit(); dec_thr.wait(); a.quit(); });
+    //QObject::connect(&Exit, &QAction::triggered, &a, &QApplication::quit);
 
     ctrler.setDecode(manager.findFirstAudio());
     QRect s = QApplication::desktop()->screenGeometry();

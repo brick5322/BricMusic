@@ -192,6 +192,7 @@ void AudioFileManager::on_server_timeout()
 	mtx.lock();
 	static qint64 latest_pid = 0;
 	static int pos = 0;
+    qint64 current_pid = 0;
     if (!*(qint64*)data())
 	{
 		if (latest_pid) {
@@ -234,7 +235,7 @@ void AudioFileManager::on_server_timeout()
 	}
 
 	lock();
-	qint64 current_pid = *(qint64*)data();
+    current_pid = *(qint64*)data();
 	if (latest_pid != current_pid)
 	{
 		insert(current_fp_pos + ++pos, (char*)data() + sizeof(qint64));
