@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
                     break;
                 else
                 {
-                    manager.Init(lua_tostring(Config, -1));
+                    manager.append(lua_tostring(Config, -1));
                     lua_pop(Config, 1);
                 }
             }

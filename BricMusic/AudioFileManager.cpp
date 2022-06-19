@@ -59,13 +59,13 @@ AudioFileManager::AudioFileManager(int nb_filepaths, char** filepaths)
 #ifdef _DEBUG
 					qDebug() << lua_tostring(Config, -1);
 #endif // _DEBUG
-					Init(lua_tostring(Config, -1));
+					append(lua_tostring(Config, -1));
 					lua_pop(Config, 1);
 				}
 			}
 		}
 		else
-			Init(filepaths[i]);
+			append(filepaths[i]);
 	}
 	lua_close(Config);
 }
@@ -95,8 +95,10 @@ bool AudioFileManager::AudioFileManagerCreate(InputOption opt)
 		else
 		{
 			lock();
-			((qint64*)data())[0] = 1;
-			((qint64*)data())[1] = opt;
+			ProcProto::Header& header = *(ProcProto::Header*)data();
+			header.set_code(opt);
+			//((qint64*)data())[0] = 1;
+			//((qint64*)data())[1] = opt;
 			unlock();
 		}
 	}
@@ -114,29 +116,44 @@ AudioFileManager::~AudioFileManager()
 	}
 }
 
-bool AudioFileManager::insert(int i, const QByteArray& str)
+bool AudioFileManager::insert(int i, const QByteArray& filepath)
 {
+#ifdef _WIN32
+	QByteArray str = filepath;
+	str.replace('\\', '/');
+#endif // _WIN32
 	if (sPaths.contains(str))
+	{
+		current_fp_pos = lPaths.indexOf(str)-1;
 		return false;
+	}
 	else
 	{
 		sPaths.insert(str);
-		lPaths.insert(i,str);
+		lPaths.insert(i, str);
+		current_fp_pos = i-1;
 		return true;
 	}
 }
 
-bool AudioFileManager::append(const QByteArray& str)
+void AudioFileManager::append(const QByteArray& filepath)
 {
+
+#ifdef _WIN32
+	QByteArray str = filepath;
+	str.replace('\\', '/');
+#endif // _WIN32
 #ifdef _DEBUG
 	qDebug() << "try to append" << str;
 #endif // _DEBUG
-
 	AVFormatContext* ctx = nullptr;
 	if (sPaths.contains(str))
-		return false;
+	{
+		current_fp_pos = lPaths.indexOf(str);
+		return;
+	}
 	else if (avformat_open_input(&ctx, str.data(), NULL, NULL))
-		return false;
+		return;
 	else
 	{
 		avformat_close_input(&ctx);
@@ -145,7 +162,8 @@ bool AudioFileManager::append(const QByteArray& str)
 #ifdef _DEBUG
 		qDebug() << "append" << str;
 #endif // _DEBUG
-		return true;
+		current_fp_pos++;
+		return;
 	}
 }
 
@@ -193,7 +211,8 @@ void AudioFileManager::on_server_timeout()
 	static qint64 latest_pid = 0;
 	static int pos = 0;
     qint64 current_pid = 0;
-    if (!*(qint64*)data())
+	ProcProto::Header& header = *(ProcProto::Header*)data();
+    if (!header.get_pid())
 	{
 		if (latest_pid) {
 #ifdef __linux__
@@ -203,56 +222,50 @@ void AudioFileManager::on_server_timeout()
 			pos = 0;
 			latest_pid = 0;
 			}
-		goto unl_ret;
+		mtx.unlock();
+		return;
 	}
-	else if (*(qint64*)data() == 1)
+	else if (int code = header.get_code())
 	{
 		lock();
-		switch (((qint64*)data())[1])
+		switch (code)
 		{
 		case Pause:
-			*(qint64*)data() = 0;
-			unlock();
-			mtx.unlock();
 			emit processSetPause();
 			break;
 		case Prev:
-			*(qint64*)data() = 0;
-			unlock(); 
-			mtx.unlock();
 			emit processSetPrev();
 			break;
 		case Next:
-			*(qint64*)data() = 0;
-			unlock(); 
-			mtx.unlock();
 			emit processSetNext();
 			break;
 		default:
 			break;
 		}
+		header.set_pid(0);
+		unlock();
+		mtx.unlock();
 		return;
 	}
 
 	lock();
-    current_pid = *(qint64*)data();
+    current_pid = header.get_pid();
+	if (insert(current_fp_pos + pos + 1, header.get_buffer()))
+		pos++;
 	if (latest_pid != current_pid)
 	{
-		insert(current_fp_pos + ++pos, (char*)data() + sizeof(qint64));
 		emit newProcesstask();
+		latest_pid = current_pid;
 	}
-	else
-		insert(current_fp_pos + ++pos, (char*)data() + sizeof(qint64));
-	latest_pid = current_pid;
-	*(qint64*)data() = 0;
+	header.set_pid(0);
 	unlock();
-unl_ret:
 	mtx.unlock();
 }
 
 void AudioFileManager::on_client_timeout()
 {
-    if (*(qint64*)data())
+	ProcProto::Header& header = *(ProcProto::Header*)data();
+    if (header.get_pid())
     {
         detach();
         if(!attach())
@@ -265,11 +278,11 @@ void AudioFileManager::on_client_timeout()
 	lock();
 
 #ifdef _WIN32
-	* (qint64*)data() = (qint64)GetCurrentProcessId();
+	header.set_pid(GetCurrentProcessId());
 #elif defined(__linux__)
-	* (qint64*)data() = (qint64)getpid();
+	header.set_pid(getpid());
 #endif // _WIN32
-	strcpy((char*)data() + sizeof(qint64), lPaths[current_fp_pos++].toStdString().c_str());
+	strcpy(header.get_buffer(), lPaths[current_fp_pos++].toStdString().c_str());
 	if (current_fp_pos==lPaths.size())
 	{
 		emit sendFinished();
@@ -287,29 +300,13 @@ void AudioFileManager::saveBLU(const QString& filepath)
 	QByteArray fpArr = filepath.toLocal8Bit();
 	FILE* fp = fopen(fpArr.data(), "w");
 	fputs("MenuList = {\n", fp);
-#ifdef _WIN32
-	for (QByteArray i : lPaths)
-	{
-		fputs("    \"", fp);
-		fputs(i.replace('\\','/').data(), fp);
-		fputs("\",\n", fp);
-	}
-#elif defined(__linux__)
 	for (const QByteArray& i : lPaths)
 	{
 		fputs("    \"", fp);
 		fputs(i.data(), fp);
 		fputs("\",\n", fp);
 	}
-#endif
 	fputs("}\n", fp);
 	fclose(fp);
 }
-
-void AudioFileManager::Init(const QByteArray& filepath)
-{
-	append(filepath);
-	current_fp_pos++;
-}
-
 
