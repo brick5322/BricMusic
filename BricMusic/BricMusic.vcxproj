@@ -154,7 +154,6 @@
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="FIFOBuffer.c" />
     <ClCompile Include="Player.cpp" />
-    <ClCompile Include="ProcProto.cpp" />
     <QtRcc Include="BricMusic.qrc" />
     <QtMoc Include="BricMusic.h" />
     <ClCompile Include="BricMusic.cpp" />
@@ -174,7 +173,6 @@
     <QtMoc Include="AudioFileManager.h" />
     <ClInclude Include="FIFO.h" />
     <ClInclude Include="FIFOBuffer.h" />
-    <ClInclude Include="pubdefs.h" />
     <QtMoc Include="Player.h" />
   </ItemGroup>
   <ItemGroup>
