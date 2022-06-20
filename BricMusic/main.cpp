@@ -15,6 +15,7 @@
 #include "Controller.h"
 #include "AudioFileManager.h"
 #include "ArgSplitter.h"
+#include <vld.h>
 
 #ifdef _DEBUG
 #include <QDebug>

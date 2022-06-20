@@ -1,15 +1,23 @@
 #include "ArgSplitter.h"
 #include <cstring>
 
-ArgSplitter::ArgSplitter(int argc, char** argv) :ARGC(argc), ARGV(argv),_argc(0), _argv(new char* [argc]), long_options(nullptr), arg_options(nullptr), arg_type(new Type[argc]), _arg_type((Type*)arg_type)
+ArgSplitter::ArgSplitter(int argc, char** argv) :
+	ARGC(argc),	ARGV(argv),
+	_argc(0),
+	_argv(new char* [argc]),
+	long_options(nullptr),
+	arg_options(nullptr),
+	arg_type(new Type[argc]),
+	_arg_type((Type*)arg_type)
 {
 }
 
 ArgSplitter::~ArgSplitter()
 {
-	delete long_options;
-	delete arg_options;
-	delete _argv;
+	delete[] long_options;
+	delete[] arg_options;
+	delete[] _argv;
+	delete[] arg_type;
 }
 
 void ArgSplitter::setShortOptions(char* opts)

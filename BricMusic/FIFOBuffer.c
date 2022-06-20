@@ -25,6 +25,8 @@ FIFOBuffer* FIFOBuffer_ref(FIFOBuffer* f)
 void FIFOBuffer_free(FIFOBuffer* f)
 {
     f->refcount--;
+    if (!f->refcount)
+        free(f);
 }
 
 void FIFOBuffer_write(FIFOBuffer* buf, const uint8_t* src, int len)
