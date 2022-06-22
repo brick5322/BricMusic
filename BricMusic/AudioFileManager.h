@@ -7,6 +7,7 @@
 #include <QSet>
 #include <QList>
 #include <QMutex>
+#include <QFile>
 #include "ProcProto.h"
 
 extern"C"
@@ -62,6 +63,6 @@ private:
 	QSet<QByteArray> sPaths;
 	QList<QByteArray> lPaths;
 	int current_fp_pos;
-	const char* bluPath;
+	QFile blu;
 	bool is_dynaticScript;
 };

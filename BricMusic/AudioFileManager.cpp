@@ -1,6 +1,7 @@
 #include "AudioFileManager.h"
 #include <QTimerEvent>
 #include <QtWidgets/QApplication>
+#include <QStandardPaths>
 
 #ifdef _DEBUG
 #include <QDebug>
@@ -21,20 +22,21 @@ extern"C"
 const QString& AudioFileManager::sharedMemoryKey = QString("BricMusicSharedMemoryKey");
 
 AudioFileManager::AudioFileManager(int nb_filepaths, char** filepaths)
-	: QSharedMemory(sharedMemoryKey,nullptr),thr(nullptr),timerID(0),current_fp_pos(0),bluPath(nullptr), Config(luaL_newstate()), is_dynaticScript(false)
+	: QSharedMemory(sharedMemoryKey,nullptr),
+	thr(nullptr),timerID(0),current_fp_pos(0),
+	Config(luaL_newstate()), is_dynaticScript(false)
 {
 	if (!Config)
 	{
 		 emit luaOpenErr();
 		 return;
 	}
-
 	luaL_openlibs(Config);
 	for (size_t i = 0; i < nb_filepaths; i++)
 	{
 		if (!strcmp((filepaths[i] + strlen(filepaths[i]) - 4), ".blu"))
 		{
-			if (bluPath)
+			if (blu.isOpen())
 			{
 				lua_State* tmpL = luaL_newstate();
 				if (!tmpL)
@@ -75,8 +77,6 @@ AudioFileManager::AudioFileManager(int nb_filepaths, char** filepaths)
 					lua_pop(Config, 1);
 					continue;
 				}
-				bluPath = filepaths[i];
-
 
 				int len = luaL_len(Config, -1);
 				for (int i = 1; i <= len; i++)
@@ -99,6 +99,8 @@ AudioFileManager::AudioFileManager(int nb_filepaths, char** filepaths)
 						break;
 					}
 				}
+				if(is_dynaticScript)
+					blu.setFileName(filepaths[i]);
 			}
 		}
 		else
@@ -109,9 +111,16 @@ AudioFileManager::AudioFileManager(int nb_filepaths, char** filepaths)
 bool AudioFileManager::AudioFileManagerCreate(InputOption opt)
 {
     timer.setInterval(30);
-
 	if (create(sharedMemorySize))
 	{
+		if (is_dynaticScript)
+		{
+			QString tempBluPath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/temp.blu");
+			QFile(tempBluPath).remove();
+			blu.copy(tempBluPath);
+			blu.setFileName(tempBluPath);
+			blu.open(QIODevice::Append | QIODevice::WriteOnly | QIODevice::Text);
+		}
 		thr = new QThread;
 		moveToThread(thr);
 		thr->start();
@@ -133,8 +142,6 @@ bool AudioFileManager::AudioFileManagerCreate(InputOption opt)
 			lock();
 			ProcProto::Header& header = *(ProcProto::Header*)data();
 			header.set_code(opt);
-			//((qint64*)data())[0] = 1;
-			//((qint64*)data())[1] = opt;
 			unlock();
 		}
 	}
@@ -143,6 +150,8 @@ bool AudioFileManager::AudioFileManagerCreate(InputOption opt)
 
 AudioFileManager::~AudioFileManager()
 {
+	blu.close();
+	blu.remove();
 	timer.stop();
 	if (thr)
 	{
@@ -194,6 +203,12 @@ bool AudioFileManager::insert(int i, const QByteArray& filepath)
 	{
 		sPaths.insert(str);
 		lPaths.insert(i, str);
+		if (blu.isOpen())
+		{
+			char tmp[64];
+			sprintf(tmp, "table.insert(MenuList , %d , \"", i + 1);
+			blu.write(QByteArray(tmp) + str + QByteArray("\")"));
+		}
 		current_fp_pos = i-1;
 		return true;
 	}
@@ -257,7 +272,6 @@ void AudioFileManager::findNextAudio(int mode)
 #ifdef _DEBUG
 			qDebug() << QString::fromLocal8Bit("下一首:") << current_fp_pos;
 			qDebug() << QString::fromUtf8(tmp);
-			//qDebug() << QString::fromLocal8Bit(tmp);
 #endif // _DEBUG
 			emit getPath(tmp);
 			return mtx.unlock();
@@ -289,7 +303,6 @@ void AudioFileManager::findNextAudio(int mode)
 #ifdef _DEBUG
 	qDebug() << QString::fromLocal8Bit("下一首:") << current_fp_pos;
 	qDebug() << QString::fromUtf8(tmp);
-	//qDebug() << QString::fromLocal8Bit(tmp);
 #endif // _DEBUG
 	mtx.unlock();
 
@@ -404,18 +417,21 @@ void AudioFileManager::saveBLU(const QString& filepath)
 {
 	if (filepath.isEmpty())
 		return;
-	QByteArray fpArr = filepath.toLocal8Bit();
-	FILE* fp = fopen(fpArr.data(), "w");
-	fputs("MenuList = {\n", fp);
-	for (const QByteArray& i : lPaths)
+	if (!is_dynaticScript)
 	{
-		if (i.indexOf("closure:/") != -1)
-			continue;
-		fputs("    \"", fp);
-		fputs(i.data(), fp);
-		fputs("\",\n", fp);
+		QByteArray fpArr = filepath.toLocal8Bit();
+		FILE* fp = fopen(fpArr.data(), "w");
+		fputs("MenuList = {\n", fp);
+		for (const QByteArray& i : lPaths)
+		{
+			fputs("    \"", fp);
+			fputs(i.data(), fp);
+			fputs("\",\n", fp);
+		}
+		fputs("}\n", fp);
+		fclose(fp);
 	}
-	fputs("}\n", fp);
-	fclose(fp);
+	else
+		blu.copy(filepath);
 }
 

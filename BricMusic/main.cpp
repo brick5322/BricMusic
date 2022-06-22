@@ -15,7 +15,7 @@
 #include "Controller.h"
 #include "AudioFileManager.h"
 #include "ArgSplitter.h"
-#include <vld.h>
+//#include <vld.h>
 
 #ifdef _DEBUG
 #include <QDebug>
@@ -156,7 +156,6 @@ int main(int argc, char *argv[])
 
     Controller ctrler;
     Player player(std::bind(&Controller::setData, &ctrler, std::placeholders::_1, std::placeholders::_2));
-    //Decoder decoder;
 
     Decoder decoder(ctrler.buffer());
     QThread dec_thr;
@@ -234,7 +233,6 @@ int main(int argc, char *argv[])
                 ));
         });
     QObject::connect(&Exit, &QAction::triggered, [&]() {dec_thr.quit(); dec_thr.wait(); a.quit(); });
-    //QObject::connect(&Exit, &QAction::triggered, &a, &QApplication::quit);
 
     ctrler.setDecode(manager.findFirstAudio());
     QRect s = QApplication::desktop()->screenGeometry();
