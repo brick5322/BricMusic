@@ -33,26 +33,43 @@ QColor get_color(lua_State* L)
 {
     QColor ret;
 
-    if (lua_getglobal(L, "ThemeColor") != LUA_TTABLE)
-        return QColor("#E799B0");
-    lua_pushstring(L, "Red");
-    if (lua_gettable(L, -2) != LUA_TNUMBER)
-        return QColor("#E799B0");
+    switch (lua_getglobal(L, "ThemeColor"))
+    {
+    case LUA_TTABLE:
+        ret = QColor("#C0C0C0");
+        break;
+    case LUA_TSTRING:
+        ret = QColor(lua_tostring(L, -1));
+        if (ret.isValid())
+            return ret;
+        if (!strcmp(lua_tostring(L, -1), "Ava"))
+            ret = QColor("#9AC8E2");
+        else if(!strcmp(lua_tostring(L, -1), "Bella"))
+            ret = QColor("#DB7D74");
+        else if (!strcmp(lua_tostring(L, -1), "Carol"))
+            ret = QColor("#B8A6D9");
+        else if (!strcmp(lua_tostring(L, -1), "Diana"))
+            ret = QColor("#E799B0");
+        else if (!strcmp(lua_tostring(L, -1), "Eileen"))
+            ret = QColor("#576690");
+        else
+    default:
+        return QColor("#C0C0C0");
+    }
+
+    if (lua_getfield(L, -1, "Red") != LUA_TNUMBER)
+        return ret;
     else
         ret.setRed(lua_tointeger(L, -1));
-    lua_pop(L, 1);
-    lua_pushstring(L, "Green");
-    if (lua_gettable(L, -2) != LUA_TNUMBER)
-        return QColor("#E799B0");
+    if (lua_getfield(L, -2, "Green")!= LUA_TNUMBER)
+        return ret;
     else
         ret.setGreen(lua_tointeger(L, -1));
-    lua_pop(L, 1);
-    lua_pushstring(L, "Blue");
-    if (lua_gettable(L, -2) != LUA_TNUMBER)
-        return QColor("#E799B0");
+    if (lua_getfield(L, -3, "Blue") != LUA_TNUMBER)
+        return ret;
     else
         ret.setBlue(lua_tointeger(L, -1));
-    lua_pop(L, 1);
+    lua_pop(L, 4);
     return ret;
 }
 
@@ -81,8 +98,13 @@ int main(int argc, char *argv[])
     if (luaL_dofile(Config, luaScriptPath.toLocal8Bit().data()))
     {
         QMessageBox::critical(nullptr,
-            QMessageBox::tr("Lua File Err!"),
-            QMessageBox::tr("You might have a Lua script with an error or you might even have deleted the script.\nAnyway,see Readme.md(Windows) or try \"man BricMusic\"(Linux) to find solution."), QMessageBox::Cancel);
+            QMessageBox::tr("Basic Lua Script Err!"),
+            QMessageBox::tr("File cannot Load!\nYou've got an error:\n    ") +
+            QString::fromLocal8Bit(lua_tostring(Config, -1)) +
+            QMessageBox::tr("Anyway, see Readme.md(Windows) or try \"man BricMusic\"(Linux) to find solution."),
+            QMessageBox::Cancel);
+        lua_pop(Config, 1);
+        lua_close(Config);
         return 0;
     }
 #ifdef _DEBUG
@@ -124,17 +146,20 @@ int main(int argc, char *argv[])
             lua_close(Config);
         else
         {
-            int i = 0;
-            while (true) {
-                lua_pushnumber(Config, ++i);
-                if (lua_gettable(Config, -2) != LUA_TSTRING)
-                    break;
-                else
+            int len = luaL_len(Config, -1);
+            for (int i = 1; i <= len; i++)
+                switch (lua_geti(Config, -1, i))
                 {
+                case LUA_TSTRING:
+#ifdef _DEBUG
+                    qDebug() << lua_tostring(Config, -1);
+#endif // _DEBUG
                     manager.append(lua_tostring(Config, -1));
                     lua_pop(Config, 1);
+                    break;
+                default:
+                    break;
                 }
-            }
         }
     }
     if (!manager.size())

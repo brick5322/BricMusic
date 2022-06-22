@@ -2,6 +2,7 @@
 #include <QTimerEvent>
 #include <QtWidgets/QApplication>
 #include <QStandardPaths>
+#include <QMessageBox>
 
 #ifdef _DEBUG
 #include <QDebug>
@@ -42,12 +43,19 @@ AudioFileManager::AudioFileManager(int nb_filepaths, char** filepaths)
 				if (!tmpL)
 					continue;
 #ifdef _WIN32
-				if (luaL_dofile(tmpL, QString(filepaths[i]).toLocal8Bit().data()))
-					continue;
+				if (luaL_dofile(Config, QString(filepaths[i]).toLocal8Bit().data()))
 #elif defined(__linux__)
-				if (luaL_dofile(tmpL, filepaths[i]))
-					continue;
+				if (luaL_dofile(Config, filepaths[i]))
 #endif // _WIN32
+				{
+					QMessageBox::critical(nullptr,
+						QMessageBox::tr("Lua Script Error"),
+						QMessageBox::tr("File cannot Load!\nYou've got an error:\n    ")
+						+ QString::fromLocal8Bit(lua_tostring(Config, -1)),
+						QMessageBox::Cancel);
+					lua_pop(Config, 1);
+					continue;
+			}
 				if (lua_getglobal(tmpL, "MenuList") != LUA_TTABLE)
 				{
 					lua_pop(tmpL, 1);
@@ -67,11 +75,18 @@ AudioFileManager::AudioFileManager(int nb_filepaths, char** filepaths)
 			{
 #ifdef _WIN32
 				if (luaL_dofile(Config, QString(filepaths[i]).toLocal8Bit().data()))
-					continue;
 #elif defined(__linux__)
 				if (luaL_dofile(Config, filepaths[i]))
-					continue;
 #endif // _WIN32
+				{
+					QMessageBox::critical(nullptr,
+						QMessageBox::tr("Lua Script Error"),
+						QMessageBox::tr("File cannot Load!\nYou've got an error:\n    ")
+						+ QString::fromLocal8Bit(lua_tostring(Config, -1)),
+						QMessageBox::Cancel);
+					lua_pop(Config, 1);
+					continue;
+				}
 				if (lua_getglobal(Config, "MenuList") != LUA_TTABLE)
 				{
 					lua_pop(Config, 1);
@@ -115,7 +130,11 @@ bool AudioFileManager::AudioFileManagerCreate(InputOption opt)
 	{
 		if (is_dynaticScript)
 		{
-			QString tempBluPath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/temp.blu");
+#ifdef _WIN32
+			QString tempBluPath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/.temp.blu");
+#elif defined(__linux__)
+			QString tempBluPath(QDir::homePath() + "/.BricMusic/.temp.blu");
+#endif
 			QFile(tempBluPath).remove();
 			blu.copy(tempBluPath);
 			blu.setFileName(tempBluPath);
