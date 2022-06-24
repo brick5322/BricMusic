@@ -269,7 +269,7 @@ void AudioFileManager::appendClosure(int closure)
 	lPaths.append(QByteArray("closure:/") + QByteArray::number(closure));
 }
 
-void AudioFileManager::findNextAudio(int mode)
+QByteArray AudioFileManager::findNextAudio(int mode)
 {
 	mtx.lock();
 	QByteArray tmp;
@@ -292,8 +292,9 @@ void AudioFileManager::findNextAudio(int mode)
 			qDebug() << QString::fromLocal8Bit("下一首:") << current_fp_pos;
 			qDebug() << QString::fromUtf8(tmp);
 #endif // _DEBUG
-			emit getPath(tmp);
-			return mtx.unlock();
+			//emit getPath(tmp);
+			mtx.unlock();
+			return tmp;
 		case 4:
 			srand(time(0));
 			current_fp_pos = rand();
@@ -318,13 +319,14 @@ void AudioFileManager::findNextAudio(int mode)
 			else
 				current_fp_pos = 0;
 	}
-	emit getPath(tmp);
+	//emit getPath(tmp);
+
 #ifdef _DEBUG
 	qDebug() << QString::fromLocal8Bit("下一首:") << current_fp_pos;
 	qDebug() << QString::fromUtf8(tmp);
 #endif // _DEBUG
 	mtx.unlock();
-
+	return tmp;
 }
 
 QByteArray AudioFileManager::findFirstAudio()

@@ -38,7 +38,7 @@ public:
 	bool isDynatic() { return is_dynaticScript; }
 	QByteArray findFirstAudio();
 public slots:
-    void findNextAudio(int mode);
+	QByteArray findNextAudio(int mode);
 	void saveBLU(const QString& filepath);
 private slots:
     void on_server_timeout();

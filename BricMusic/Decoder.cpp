@@ -160,7 +160,6 @@ void Decoder::decode(void* mtx) {
 				close();
 				return;
 			}
-				//emit decodeFin();
 			else
 			{
 				if (decodecPacket->stream_index != stream->index)
@@ -180,8 +179,6 @@ void Decoder::decode(void* mtx) {
 
 				if (swrCtx)
 				{
-					//int sz_samples = swr_convert(swrCtx, &decodeData, BufferSize, (const uint8_t**)decodecFrame->data, decodecFrame->nb_samples);
-					//sz_decodeData = cdpr->channels * cdpr->frame_size * av_get_bytes_per_sample(sampleFormat);
 					sz_decodeData =
 						swr_convert(swrCtx, &decodeData, BufferSize, (const uint8_t**)decodecFrame->data, decodecFrame->nb_samples)
 						* av_get_bytes_per_sample(sampleFormat)
@@ -190,22 +187,17 @@ void Decoder::decode(void* mtx) {
 				}
 				else if (decodecFrame->linesize[0] > sz)
 				{
-					//SDL_LockMutex(static_cast<Controller*>(parent())->mutex());
 					SDL_LockMutex(static_cast<SDL_mutex*>(mtx));
 					buffer[sz] << decodecFrame->data[0];
 					SDL_UnlockMutex(static_cast<SDL_mutex*>(mtx));
-					//SDL_UnlockMutex((parent())->mutex());
-					//saver2.write(decodecFrame->data[0], sz);
 					memcpy(decodeData,decodecFrame->data[0] + sz, decodecFrame->linesize[0] - sz);
 					sz_decodeData = decodecFrame->linesize[0] - sz;
 					return;
 				}
 				else 
 				{
-					//SDL_LockMutex(static_cast<Controller*>(parent())->mutex());
 					SDL_LockMutex(static_cast<SDL_mutex*>(mtx));
 					buffer[decodecFrame->linesize[0]] << decodecFrame->data[0];
-					//SDL_UnlockMutex(static_cast<Controller*>(parent())->mutex());
 					SDL_UnlockMutex(static_cast<SDL_mutex*>(mtx));
 
 					//saver2.write(decodecFrame->data[0], decodecFrame->linesize[0]);
@@ -216,23 +208,17 @@ void Decoder::decode(void* mtx) {
 
 	if (sz <= sz_decodeData)
 	{
-		//SDL_LockMutex(static_cast<Controller*>(parent())->mutex());
 		SDL_LockMutex(static_cast<SDL_mutex*>(mtx));
 		buffer[sz] << decodeData;
-		//SDL_UnlockMutex(static_cast<Controller*>(parent())->mutex());
 		SDL_UnlockMutex(static_cast<SDL_mutex*>(mtx));
-		//saver2.write(decodeData, sz);
 
 		(sz_decodeData -= sz)?decodeData += sz: decodeData = decodeBuffer ;
 	}
 	else if(sz_decodeData)
 	{
-		//SDL_LockMutex(static_cast<Controller*>(parent())->mutex());
 		SDL_LockMutex(static_cast<SDL_mutex*>(mtx));
 		buffer[sz_decodeData] << decodeData;
-		//SDL_UnlockMutex(static_cast<Controller*>(parent())->mutex());
 		SDL_UnlockMutex(static_cast<SDL_mutex*>(mtx));
-		//saver2.write(decodeData, sz_decodeData);
 
 		decodeData = decodeBuffer;
 		sz_decodeData = 0;

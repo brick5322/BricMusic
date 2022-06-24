@@ -2,6 +2,7 @@
 
 #include <QTimer>
 #include <QPixmap>
+#include <functional>
 #include "FIFO.h"
 //#define _DEBUG
 
@@ -17,15 +18,16 @@ static constexpr size_t AudioLevel = 64;
 class Controller : public QObject
 {
 	Q_OBJECT
-
 public:
 	static constexpr size_t SDL_buffersz = 1024;
 	enum PlayBackMode { None = 0,loop, loopPlayBack, singleTune, randomTune,quit = 0x40000000,prev = 0x80000000 };
-	Controller(QObject *parent = Q_NULLPTR);
+	enum States { playing, changingPos, pausingAudio, terminated, finishing = 4, toNextAudio=5, toPrevAudio=6 };
+	Controller(std::function<QByteArray(int)> getPath,QObject *parent = Q_NULLPTR);
 	~Controller();
 	SDL_mutex* mutex();
 	FIFO& buffer();
 	bool isFinishing();
+	void setAction(States action);
 signals:
 	void getData(void*);
 	void setContext(SDL_AudioSpec&);
@@ -34,14 +36,13 @@ signals:
 	void playTaskFinished();
 
 	void timestampChanged(int timestamp);
-	void getAudioPath(int);
 
 	void setDecode(const QByteArray&);
 	void flushDecoder(unsigned int timestamp);
 	void stopDecoder();
 
-	void setPausing();
 	void setPlaying();
+	void setPausing();
 
 	void setDuration(int duration);
 	void paused();
@@ -60,7 +61,6 @@ public slots:
 	void setMode(PlayBackMode mode);
 	void on_player_terminated();
 	void start();
-	//void stop();
 protected:
 	void timerEvent(QTimerEvent*);
 private:
@@ -71,10 +71,7 @@ private:
 	int audioTimestamps;
 	int playTimestamp;
 	PlayBackMode mode;
-	int current_mode;
-	bool is_finishing;
-	bool is_pausing;
-	bool is_paused;
-	bool is_pos_changing;
+	States state;
 	QByteArray recentPath;
+	std::function<QByteArray(int)> getPath;
 };

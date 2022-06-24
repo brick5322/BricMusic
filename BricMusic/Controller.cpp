@@ -7,9 +7,9 @@
 #include <QTime>
 #endif
 
-Controller::Controller(QObject* parent)
-	: QObject(parent), fifo(SDL_buffersz* AudioLevel * 2 * 4, FIFO::StrictWrite | FIFO::ReadMostSz),
-	is_finishing(false), is_paused(false), is_pausing(false), is_pos_changing(false),current_mode(None),
+Controller::Controller(std::function<QByteArray(int)> getPath,QObject* parent)
+	: QObject(parent), fifo(SDL_buffersz* AudioLevel * 2 * 4, FIFO::StrictWrite | FIFO::ReadMostSz),getPath(getPath),
+	state(playing),
 	mtx(SDL_CreateMutex()), timerID(0), playTimestamp(0)
 {
 	qRegisterMetaType<AVSampleFormat>("AVSampleFormat");
@@ -34,7 +34,12 @@ FIFO& Controller::buffer()
 
 bool Controller::isFinishing()
 {
-	return is_finishing;
+	return state & finishing;
+}
+
+void Controller::setAction(States state)
+{
+	this->state = state;
 }
 
 void Controller::getContext(AVSampleFormat sampleFormat, int channel_layout, int sample_rate,double stream_duration)
@@ -110,75 +115,93 @@ void Controller::setMode(PlayBackMode mode)
 
 void Controller::on_player_terminated()
 {
-	is_pausing = false;
-	if (is_pos_changing)
+	switch (state)
 	{
-		is_pos_changing = false;
-		return emit setPlaying();
-	}
-	is_paused = true;
-	if (!is_finishing)
-		return emit paused();
-	is_finishing = false;
+	case Controller::changingPos:
+		state = playing;
+		emit setPlaying();
+		break;
+	case Controller::pausingAudio:
+		state = terminated;
+		emit paused();
+		break;
+	case Controller::toNextAudio:
+	case Controller::toPrevAudio:
+		state = terminated;
 #ifdef _DEBUG
-	qDebug() << QTime::currentTime()<<"emit playTaskFinish";
+		qDebug() << QTime::currentTime() << "emit playTaskFinish";
 #endif
-	emit playTaskFinished();
+		emit playTaskFinished();
+		break;
+	default:
+		break;
+	}
 }
 
 void Controller::posChange(int timestamp)
 {
-	if (is_pos_changing)
+	if (state & finishing)
 		return;
-	is_pos_changing = true;
-	emit setPausing();
+	else if (state != playing)
+	{
+		SDL_LockMutex(mtx);
+		fifo.reset();
+		SDL_UnlockMutex(mtx);
+	}
+	else
+	{
+		state = changingPos;
+		emit setPausing();
+	}
 	playTimestamp = timestamp - AudioLevel;
 	emit flushDecoder(timestamp * SDL_buffersz);
 }
 
+
 void Controller::playTaskStart()
 {
+	recentPath.clear();
+	state = playing;
 	emit setPlaying();
 }
 
 void Controller::playTaskStop()
 {
-	if(current_mode)
-		emit getAudioPath(current_mode);
-	else
-		emit getAudioPath(mode&0x3fffffff);
-	current_mode = None;
-	is_pos_changing = false;
-	is_finishing = true;
+	if(recentPath.isEmpty())
+		recentPath = getPath(mode & 0x3fffffff);
 	emit setPausing();
-	if (!timerID)
-		return;
-	killTimer(timerID);
+	if (timerID)
+		killTimer(timerID);
 	timerID = 0;
+	if (state == terminated)
+		emit playTaskFinished();
 }
 
 void Controller::getNextAudio()
 {
-	current_mode = loopPlayBack;
+	recentPath = getPath(loopPlayBack);
+	if(state !=terminated)
+		state = toNextAudio;
 	emit stopDecoder();
 }
 
 void Controller::getPrevAudio()
 {
-	current_mode = loopPlayBack | prev;
+	recentPath = getPath(loopPlayBack | prev);
+	if (state != terminated)
+		state = toPrevAudio;
 	emit stopDecoder();
 }
 
 void Controller::start()
 {
-	is_finishing = false;
+	//act = playing;
 	timerID = startTimer(5);
 }
 
 void Controller::playTaskInit()
 {
-	if(!recentPath.isEmpty())
-		emit setDecode(recentPath);
+	emit setDecode(recentPath);
 }
 
 void Controller::timerEvent(QTimerEvent*)

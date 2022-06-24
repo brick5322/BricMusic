@@ -243,10 +243,14 @@ void BricMusic::on_albumslider_clicked()
 	if (is_playing)
 	{
 		albumslider->startRotate();
+		ctrler.setAction(Controller::playing);
 		emit ctrler.setPlaying();
 	}
 	else
+	{
+		ctrler.setAction(Controller::pausingAudio);
 		emit ctrler.setPausing();
+	}
 }
 
 void BricMusic::on_playtask_ready()

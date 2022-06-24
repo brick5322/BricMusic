@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
 
     lua_close(Config);
 
-    Controller ctrler;
+    Controller ctrler(std::bind(&AudioFileManager::findNextAudio, &manager, std::placeholders::_1));
     Player player(std::bind(&Controller::setData, &ctrler, std::placeholders::_1, std::placeholders::_2));
 
     Decoder decoder(ctrler.buffer());
@@ -225,7 +225,6 @@ int main(int argc, char *argv[])
     QObject::connect(&manager, &AudioFileManager::processSetPause, &w, &BricMusic::on_albumslider_clicked);
     QObject::connect(&manager, &AudioFileManager::processSetPrev, &ctrler, &Controller::getPrevAudio);
     QObject::connect(&manager, &AudioFileManager::processSetNext, &ctrler, &Controller::getNextAudio);
-    QObject::connect(&manager, &AudioFileManager::getPath, &ctrler, &Controller::setNextPath);
 
 	QObject::connect(&decoder, &Decoder::attachedPic, &w, &BricMusic::setPic);
 	QObject::connect(&decoder, &Decoder::deformatErr, &decoder, &Decoder::close);
@@ -241,7 +240,6 @@ int main(int argc, char *argv[])
 	QObject::connect(&ctrler, &Controller::setContext, &player, &Player::resetContext);
 	QObject::connect(&ctrler, &Controller::setPausing, &player, &Player::pause);
 	QObject::connect(&ctrler, &Controller::setPlaying, &player, &Player::play);
-	QObject::connect(&ctrler, &Controller::getAudioPath, &manager, &AudioFileManager::findNextAudio);
 
 	QObject::connect(&player, &Player::playReady, &ctrler, &Controller::playTaskReady);
 	QObject::connect(&player, &Player::terminated, &ctrler, &Controller::on_player_terminated);
