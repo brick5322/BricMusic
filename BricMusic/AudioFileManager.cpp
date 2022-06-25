@@ -133,7 +133,7 @@ bool AudioFileManager::AudioFileManagerCreate(InputOption opt)
 #ifdef _WIN32
 			QString tempBluPath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/.temp.blu");
 #elif defined(__linux__)
-			QString tempBluPath(QDir::homePath() + "/.BricMusic/.temp.blu");
+                        QString tempBluPath(QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/.BricMusic/.temp.blu");
 #endif
 			QFile(tempBluPath).remove();
 			blu.copy(tempBluPath);
@@ -203,14 +203,14 @@ QByteArray AudioFileManager::luaCall(const QByteArray& str)
 #ifdef _DEBUG
 	qDebug() <<"luaGC" << lua_gc(Config, LUA_GCCOUNT);
 #endif // _DEBUG
-	lua_gc(Config, LUA_GCCOLLECT);
+        lua_gc(Config, LUA_GCCOLLECT,0);
 	return ret;
 }
 
 bool AudioFileManager::insert(int i, const QByteArray& filepath)
 {
+    QByteArray str = filepath;
 #ifdef _WIN32
-	QByteArray str = filepath;
 	str.replace('\\', '/');
 #endif // _WIN32
 	if (sPaths.contains(str))
@@ -235,9 +235,8 @@ bool AudioFileManager::insert(int i, const QByteArray& filepath)
 
 void AudioFileManager::append(const QByteArray& filepath)
 {
-
+    QByteArray str = filepath;
 #ifdef _WIN32
-	QByteArray str = filepath;
 	str.replace('\\', '/');
 #endif // _WIN32
 #ifdef _DEBUG
@@ -350,7 +349,7 @@ void AudioFileManager::on_server_timeout()
 		if (latest_pid) {
 #ifdef __linux__
 			if (!kill(latest_pid, 0))
-				goto unl_ret;
+                                return mtx.unlock();
 #endif
 			pos = 0;
 			latest_pid = 0;

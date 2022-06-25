@@ -57,3 +57,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     BricMusic.qrc
+
+TRANSLATIONS = \
+    zh_CN.ts

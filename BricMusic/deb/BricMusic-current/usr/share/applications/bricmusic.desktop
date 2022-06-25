@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=BricMusic
+Exec=bricmusic %U
+Terminal=false
+Type=Application
+Icon=bricmusic
+Comment=A Simple Music Player
+Categories=AudioVideo;Audio;Player;
+MimeType=application/x-ogg;application/ogg;audio/x-vorbis+ogg;audio/vorbis;audio/x-vorbis;audio/x-scpls;audio/x-mp3;audio/x-mpeg;audio/mpeg;audio/x-mpegurl;audio/x-flac;audio/mp4;audio/x-it;audio/x-mod;audio/x-s3m;audio/x-stm;audio/x-xm;

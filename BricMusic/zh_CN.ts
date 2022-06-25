@@ -4,44 +4,79 @@
 <context>
     <name>QAction</name>
     <message>
-        <location filename="main.cpp" line="136"/>
+        <location filename="main.cpp" line="203"/>
         <source>Show</source>
-        <translatorcomment>显示</translatorcomment>
         <translation>显示</translation>
     </message>
     <message>
-        <location filename="main.cpp" line="137"/>
+        <location filename="main.cpp" line="204"/>
+        <source>Save</source>
+        <translation>保存</translation>
+    </message>
+    <message>
+        <location filename="main.cpp" line="205"/>
         <source>Exit</source>
-        <translatorcomment>退出</translatorcomment>
         <translation>退出</translation>
+    </message>
+</context>
+<context>
+    <name>QFileDialog</name>
+    <message>
+        <location filename="main.cpp" line="255"/>
+        <source>save .blu MenuList</source>
+        <translation>保存.blu播放列表</translation>
+    </message>
+    <message>
+        <location filename="main.cpp" line="256"/>
+        <source>/new MenuList.blu</source>
+        <translation>/新建 播放列表.blu</translation>
+    </message>
+    <message>
+        <location filename="main.cpp" line="257"/>
+        <source>MenuList (*.blu)</source>
+        <translation>BricMusic 播放列表 (*.blu)</translation>
     </message>
 </context>
 <context>
     <name>QMessageBox</name>
     <message>
-        <location filename="main.cpp" line="73"/>
-        <source>Lua File Err!</source>
-        <translatorcomment>Lua文件错误</translatorcomment>
-        <translation>Lua文件错误！</translation>
+        <location filename="AudioFileManager.cpp" line="52"/>
+        <location filename="AudioFileManager.cpp" line="83"/>
+        <source>Lua Script Error</source>
+        <translation>Lua脚本错误</translation>
     </message>
     <message>
-        <location filename="main.cpp" line="74"/>
-        <source>You might have a Lua script with an error or you might even have deleted the script.
-Anyway,see Readme.md(Windows) or try &quot;man BricMusic&quot;(Linux) to find solution.</source>
-        <translation>你可能时搞了个错误的Lua脚本，又或者，你直接把那个脚本删掉了。
-总之，你可以先看看Readme.md(Windows)或者试试“man BricMusic”（Linux）。</translation>
+        <location filename="AudioFileManager.cpp" line="53"/>
+        <location filename="AudioFileManager.cpp" line="84"/>
+        <location filename="main.cpp" line="102"/>
+        <source>File cannot Load!
+You&apos;ve got an error:
+    </source>
+        <translation>不能加载文件！
+出现了一个错误：
+    </translation>
     </message>
     <message>
-        <location filename="main.cpp" line="107"/>
+        <location filename="main.cpp" line="101"/>
+        <source>Basic Lua Script Err!</source>
+        <translation>基础配置脚本错误！</translation>
+    </message>
+    <message>
+        <location filename="main.cpp" line="104"/>
+        <source>Anyway, see Readme.md(Windows) or try &quot;man BricMusic&quot;(Linux) to find solution.</source>
+        <translation>总之，先在Readme.md（Windows上）或者试试&quot;man BricMusic&quot;（Linux上） 来找找解决的办法把。</translation>
+    </message>
+    <message>
+        <location filename="main.cpp" line="168"/>
         <source>Load Err!</source>
-        <translation>音乐文件加载错误！</translation>
+        <translation>加载错误！</translation>
     </message>
     <message>
-        <location filename="main.cpp" line="108"/>
+        <location filename="main.cpp" line="169"/>
         <source>You load NOTHING!!!!
 Anyway,see Readme.md(Windows) or try &quot;man BricMusic&quot;(Linux) to find solution.</source>
-        <translation>你啥都没加进来，这可放不了。
-总之，你可以先看看Readme.md(Windows)或者试试“man BricMusic”（Linux）。</translation>
+        <translation>你没有加载任何的东西！！！！
+总之，先在Readme.md（Windows上）或者试试&quot;man BricMusic&quot;（Linux上） 来找找解决的办法把。</translation>
     </message>
 </context>
 </TS>
