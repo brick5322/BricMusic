@@ -24,6 +24,7 @@ public:
 signals:
 	void attachedPic(uchar* picdata,int size);
 	void basicInfo(AVSampleFormat sampleFormat,	int channel_layout,	int sample_rate,double stream_duration);
+	void decoderClose();
 	void decodeFinish();
 	void decodeErr(int);
 	void deformatErr(int);

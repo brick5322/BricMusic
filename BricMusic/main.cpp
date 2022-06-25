@@ -230,7 +230,8 @@ int main(int argc, char *argv[])
 	QObject::connect(&decoder, &Decoder::deformatErr, &decoder, &Decoder::close);
 	QObject::connect(&decoder, &Decoder::decodeErr, &decoder, &Decoder::close);
 	QObject::connect(&decoder, &Decoder::basicInfo, &ctrler, &Controller::getContext);
-	QObject::connect(&decoder, &Decoder::decodeFinish, &ctrler, &Controller::playTaskStop);
+	QObject::connect(&decoder, &Decoder::decodeFinish, &ctrler, &Controller::getAudio);
+	QObject::connect(&decoder, &Decoder::decoderClose, &ctrler, &Controller::playTaskStop);
 
 	QObject::connect(&ctrler, &Controller::setDecode, &decoder, &Decoder::open);
 	QObject::connect(&ctrler, &Controller::getData, &decoder, &Decoder::decode);

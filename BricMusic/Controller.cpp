@@ -167,8 +167,6 @@ void Controller::playTaskStart()
 
 void Controller::playTaskStop()
 {
-	if(recentPath.isEmpty())
-		recentPath = getPath(mode & 0x3fffffff);
 	emit setPausing();
 	if (timerID)
 		killTimer(timerID);
@@ -180,7 +178,7 @@ void Controller::playTaskStop()
 void Controller::getNextAudio()
 {
 	recentPath = getPath(loopPlayBack);
-	if(state !=terminated)
+	if(state != terminated)
 		state = toNextAudio;
 	emit stopDecoder();
 }
@@ -193,9 +191,14 @@ void Controller::getPrevAudio()
 	emit stopDecoder();
 }
 
+void Controller::getAudio()
+{
+	recentPath = getPath(mode & 0x3fffffff);
+	state = terminated;
+}
+
 void Controller::start()
 {
-	//act = playing;
 	timerID = startTimer(5);
 }
 

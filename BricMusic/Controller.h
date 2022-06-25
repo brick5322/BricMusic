@@ -53,6 +53,7 @@ public slots:
 
 	void getNextAudio();
 	void getPrevAudio();
+	void getAudio();
 
 	void posChange(int timestamp);
 	void getContext(AVSampleFormat sampleFormat, int channel_layout, int sample_rate, double stream_duration);

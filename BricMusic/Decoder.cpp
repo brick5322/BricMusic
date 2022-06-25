@@ -130,7 +130,7 @@ int Decoder::open(const QByteArray& filepath)
 
 void Decoder::close()
 {
-	emit decodeFinish();
+	emit decoderClose();
 	av_packet_free(&picPacket);
 	avcodec_close(ctx);
 	avformat_close_input(&fmt);
@@ -157,6 +157,7 @@ void Decoder::decode(void* mtx) {
 				return;
 			if (err = av_read_frame(fmt, decodecPacket))
 			{
+				emit decodeFinish();
 				close();
 				return;
 			}
