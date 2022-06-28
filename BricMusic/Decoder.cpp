@@ -5,7 +5,6 @@
 #include <QTime>
 #endif
 
-
 Decoder::Decoder(FIFO& buffer,QObject* parent) :QObject(parent),buffer(buffer),
 fmt(avformat_alloc_context()), cdpr(NULL),
 stream(NULL), ctx(avcodec_alloc_context3(NULL)),
@@ -58,8 +57,11 @@ int Decoder::open(const QByteArray& filepath)
 			stream = fmt->streams[i];
 		else if (fmt->streams[i]->codecpar->codec_type != AVMEDIA_TYPE_VIDEO)
 			continue;
-		else if (!(picPacket = av_packet_clone(&fmt->streams[i]->attached_pic)))
-			continue;
+		else if (picPacket = av_packet_clone(&fmt->streams[i]->attached_pic))
+			if (!(picPacket->size)){
+				av_packet_unref(picPacket);
+				picPacket = NULL;
+			}
 	cdpr = stream->codecpar;
 	if ((err = avcodec_parameters_to_context(ctx, cdpr)) < 0)	{
 		emit deformatErr(err);
@@ -201,7 +203,6 @@ void Decoder::decode(void* mtx) {
 					buffer[decodecFrame->linesize[0]] << decodecFrame->data[0];
 					SDL_UnlockMutex(static_cast<SDL_mutex*>(mtx));
 
-					//saver2.write(decodecFrame->data[0], decodecFrame->linesize[0]);
 					return;
 				}
 			}

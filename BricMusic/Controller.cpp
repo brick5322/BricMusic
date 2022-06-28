@@ -157,7 +157,6 @@ void Controller::posChange(int timestamp)
 	emit flushDecoder(timestamp * SDL_buffersz);
 }
 
-
 void Controller::playTaskStart()
 {
 	recentPath.clear();
@@ -177,6 +176,8 @@ void Controller::playTaskStop()
 
 void Controller::getNextAudio()
 {
+	if (state & terminated)
+		return;
 	recentPath = getPath(loopPlayBack);
 	if(state != terminated)
 		state = toNextAudio;
@@ -185,6 +186,8 @@ void Controller::getNextAudio()
 
 void Controller::getPrevAudio()
 {
+	if (state & terminated)
+		return;
 	recentPath = getPath(loopPlayBack | prev);
 	if (state != terminated)
 		state = toPrevAudio;
