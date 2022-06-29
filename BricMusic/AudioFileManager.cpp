@@ -15,6 +15,7 @@ extern"C"
 #ifdef _WIN32
 #include <Windows.h>
 #elif defined(__linux__)
+#include <QDir>
 #include <unistd.h>
 #include <sys/types.h>
 #include <signal.h>
@@ -33,6 +34,21 @@ AudioFileManager::AudioFileManager(int nb_filepaths, char** filepaths)
 		 return;
 	}
 	luaL_openlibs(Config);
+#ifdef __linux__
+	lua_getglobal(Config, "package");
+
+	QByteArray luaScriptPath = QDir::homePath().toLocal8Bit() + QByteArray("/.BricMusic/lua/?.lua");
+	luaScriptPath = QByteArray(LUA_PATH_DEFAULT";") + luaScriptPath;
+	lua_pushstring(Config,luaScriptPath.data());
+	lua_setfield(Config, -2, "path");
+
+	QByteArray luaScriptCPath = QDir::homePath().toLocal8Bit() + QByteArray("/.BricMusic/?.dll");
+	luaScriptCPath = QByteArray(LUA_CPATH_DEFAULT";") + luaScriptCPath;
+	lua_pushstring(Config, luaScriptCPath.data());
+	lua_setfield(Config, -2, "cpath");
+
+	lua_pop(Config, 1);
+#endif
 	for (size_t i = 0; i < nb_filepaths; i++)
 	{
 		if (!strcmp((filepaths[i] + strlen(filepaths[i]) - 4), ".blu"))
@@ -291,7 +307,6 @@ QByteArray AudioFileManager::findNextAudio(int mode)
 			qDebug() << QString::fromLocal8Bit("下一首:") << current_fp_pos;
 			qDebug() << QString::fromUtf8(tmp);
 #endif // _DEBUG
-			//emit getPath(tmp);
 			mtx.unlock();
 			return tmp;
 		case 4:
@@ -318,7 +333,6 @@ QByteArray AudioFileManager::findNextAudio(int mode)
 			else
 				current_fp_pos = 0;
 	}
-	//emit getPath(tmp);
 
 #ifdef _DEBUG
 	qDebug() << QString::fromLocal8Bit("下一首:") << current_fp_pos;
