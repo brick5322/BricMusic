@@ -120,9 +120,6 @@ bool BricMusic::eventFilter(QObject* obj, QEvent* e)
 
 void BricMusic::enterEvent(QEvent*)
 {
-#ifdef _DEBUG
-	qDebug() << "enterEvent";
-#endif // _DEBUG
 	hideBtn_delay.stop();
 	this->activateWindow();
 	this->raise();
@@ -133,9 +130,6 @@ void BricMusic::enterEvent(QEvent*)
 
 void BricMusic::leaveEvent(QEvent*)
 {
-#ifdef _DEBUG
-	qDebug() << "leaveEvent";
-#endif // _DEBUG
 	if (ani.state() == QAbstractAnimation::Running)
 	{
 		btns_hidden = true;

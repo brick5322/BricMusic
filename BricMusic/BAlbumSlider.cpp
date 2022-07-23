@@ -92,6 +92,10 @@ void BAlbumSlider::setAlbumPic(uchar* picdata, int size)
 	{
 		albumPic.loadFromData(picdata, size);
 		albumPic = albumPic.scaled(radius * 2, radius * 2, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+		if (albumPic.width() > albumPic.height())
+			albumPic = albumPic.copy(albumPic.width() / 2 - radius, 0, radius * 2, radius * 2);
+		else if (albumPic.width() < albumPic.height())
+			albumPic = albumPic.copy(0, albumPic.height() / 2 - radius, radius * 2, radius * 2);
 		PixmapToRound(albumPic);
 	}
 	else
@@ -134,7 +138,7 @@ void BAlbumSlider::setMaximum(double max)
 
 bool BAlbumSlider::eventFilter(QObject* obj, QEvent* e)
 {
-	if(e->type() == QEvent::MouseMove)
+	if (e->type() == QEvent::MouseMove)
 	{
 		QPoint pos = handle.mapToParent(static_cast<QMouseEvent*>(e)->pos());
 		length = calValue(pos);
@@ -225,7 +229,7 @@ void BAlbumSlider::paintEvent(QPaintEvent*)
 
 void BAlbumSlider::timerEvent(QTimerEvent*)
 {
-	if(is_rotated)
+	if (is_rotated)
 		if (--image_rotate_angle < 0)
 			image_rotate_angle = 360;
 	longPress_duration += is_longPress_timing;
@@ -247,22 +251,22 @@ QPoint BAlbumSlider::center()
 
 void BAlbumSlider::PixmapToRound(QPixmap& src)
 {
-	if (src.isNull()) {
+	if (src.isNull())
 		return;
-	}
 	QBitmap mask(radius * 2, radius * 2);
 	QPainter painter(&mask);
-	painter.fillRect(0, 0, radius * 2, radius * 2, Qt::white);
-	painter.setBrush(QColor(0, 0, 0));
+	painter.fillRect(0, 0, src.width(), src.height(), Qt::white);
+	painter.setBrush(Qt::black);
 	painter.setRenderHint(QPainter::SmoothPixmapTransform);
 	painter.drawRoundedRect(0, 0, radius * 2, radius * 2, 100, 100);
 	src.setMask(mask);
+
 }
 
 double BAlbumSlider::calValue(const QPoint& pos)
-{	
+{
 	QPoint len = pos - center();
-	double ret = maximum/2 + atan2(len.x(), len.y()) / (2 * 3.14) * maximum ;
+	double ret = maximum / 2 + atan2(len.x(), len.y()) / (2 * 3.14) * maximum;
 	return ret;
 }
 

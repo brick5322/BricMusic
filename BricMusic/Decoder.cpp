@@ -228,4 +228,6 @@ void Decoder::decode(void* mtx) {
 	return;
 errRet:
 	emit decodeErr(err);
+	emit decodeFinish();
+	close();
 }

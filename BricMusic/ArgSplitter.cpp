@@ -4,7 +4,7 @@
 ArgSplitter::ArgSplitter(int argc, char** argv) :
 	ARGC(argc),	ARGV(argv),
 	_argc(0),
-	_argv(new char* [argc]),
+	_argv(0),
 	long_options(nullptr),
 	arg_options(nullptr),
 	arg_type(new Type[argc]),
