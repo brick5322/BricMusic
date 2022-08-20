@@ -348,6 +348,7 @@ QByteArray AudioFileManager::findFirstAudio()
 	QByteArray ret;
 	while ((ret = luaCall(lPaths[current_fp_pos])).isEmpty())
 		current_fp_pos++;
+	path = ret;
 	return ret;
 }
 
