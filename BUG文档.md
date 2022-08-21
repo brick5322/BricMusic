@@ -37,14 +37,9 @@
 
 计算机\HKEY_USERS\S-1-5-21-4141504208-1052677828-2894100440-1001\SOFTWARE\Classes\SystemFileAssociations
 
-## V3.0 提供对Python的支持（并没有）
+## V3.0 提供对Python的支持
 
 歌单文件可以支持Python脚本，并可以在Python脚本中通过闭包的方法获取URL
 
 具体的说，应该是单开一个线程挂着虚拟机，也就是在AudioManager里面，然后保存的ByteArray对应相关的闭包,在解码结束时执行
 
-## V3.1.2
-
-修改了专辑图显示BUG
-
-修改了第一首歌曲不能单曲循环的BUG
